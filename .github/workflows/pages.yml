@@ -10,12 +10,8 @@ jobs:
     environment: {name: github-pages}
     steps:
       - uses: actions/checkout@v4
-      # (Optional) You already committed CNAME; keeping this is harmless.
-      - name: Prepare Pages files
-        run: |
-          echo arz.is-a.dev > CNAME
-          touch .nojekyll
+      # CNAME is already committed at repo root; no need to rewrite it here.
       - uses: actions/upload-pages-artifact@v3
-        with: { path: "." }     # publish ROOT where index.html lives
+        with: { path: "." }   # publish ROOT where index.html lives
       - id: deployment
         uses: actions/deploy-pages@v4
