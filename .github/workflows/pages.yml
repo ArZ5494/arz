@@ -7,14 +7,15 @@ concurrency: {group: pages, cancel-in-progress: true}
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: {name: github-pages, url: ${{ steps.deployment.outputs.page_url }}}
+    environment: {name: github-pages}
     steps:
       - uses: actions/checkout@v4
+      # (Optional) You already committed CNAME; keeping this is harmless.
       - name: Prepare Pages files
         run: |
           echo arz.is-a.dev > CNAME
           touch .nojekyll
       - uses: actions/upload-pages-artifact@v3
-        with: { path: "docs" }   # <— publish /docs instead of root
+        with: { path: "." }     # publish ROOT where index.html lives
       - id: deployment
         uses: actions/deploy-pages@v4
