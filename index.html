@@ -1,21 +1,1335 @@
-<!doctype html><html lang=en><meta charset=utf-8><meta name=viewport content=width=device-width,initial-scale=1><title>arz.is-a.dev</title><style>html,body{margin:0;height:100%;background:#05060a;color:#e6ecff;font:400 13px/1.4 ui-monospace,Menlo,Consolas,monospace}#c{position:fixed;inset:0}#ui{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);padding:6px 10px;border:1px solid #ffffff26;border-radius:10px;background:#0008;backdrop-filter:blur(8px);color:#aeb8d1;display:flex;gap:10px;align-items:center}#ui b{color:#9fafff}#name{color:#e6ecff}#hdr{position:fixed;left:50%;top:16px;transform:translateX(-50%);display:flex;gap:10px;align-items:center;background:#0008;border:1px solid #ffffff26;padding:6px 10px;border-radius:10px}button{all:unset;cursor:pointer;padding:2px 8px;border:1px solid #ffffff26;border-radius:8px;color:#cbd5e1}button:hover{background:#ffffff15}</style><canvas id=c></canvas><div id=hdr><span>ARZ / is‑a.dev</span><button id=pv>◀</button><span id=ix></span><button id=nx>▶</button><button id=ss>📸</button></div><div id=ui><span>Modes: <b>← / →</b> · Speed: <b>↑ / ↓</b> · Burst: <b>Click+Drag</b> · Random: <b>R</b> · Snapshot: <b>S</b></span> <span id=name></span></div><script>(()=>{"use strict";const d=document,q=s=>d.querySelector(s),cv=q('#c'),k=cv.getContext('2d');let DPR=Math.min(devicePixelRatio||1,2),W=0,H=0;const R=()=>{W=innerWidth;H=innerHeight;cv.width=W*DPR;cv.height=H*DPR;cv.style.width=W+'px';cv.style.height=H+'px';k.setTransform(DPR,0,0,DPR,0,0)};addEventListener('resize',R);R();let md=Math.floor(Math.random()*20)+1,sp=1,t0=performance.now()/1e3,down=0,mx=W/2,my=H/2,burst=0,nm=["Neon Trails","Plasma Blobs","Kaleido Lines","Ripple Rings","Vortex","Sand Bands","Hex Glow","Starfield","Aurora Ribbons","Lava Lamps","Marble Stripes","Sunburst","Ocean Waves","Cell Garden","Lens Garden","Dreamscape","Spiral Flow","Circuit Grid","Glass Grid","Nebula"];const setName=()=>{q('#ix').textContent=`${md}/20`;q('#name').textContent='– '+nm[md-1]};setName();q('#pv').onclick=()=>{md--;if(md<1)md=20;setName()};q('#nx').onclick=()=>{md++;if(md>20)md=1;setName()};q('#ss').onclick=()=>{let a=d.createElement('a');a.download='arz-'+Date.now()+'.png';a.href=cv.toDataURL('image/png');a.click()};addEventListener('keydown',e=>{let k=e.key;if(k==='ArrowLeft'){md--;if(md<1)md=20;setName()}else if(k==='ArrowRight'){md++;if(md>20)md=1;setName()}else if(k==='ArrowUp'){sp=Math.min(3,sp+.1)}else if(k==='ArrowDown'){sp=Math.max(.3,sp-.1)}else if(k.toLowerCase()==='s'){q('#ss').click()}else if(k.toLowerCase()==='r'){md=Math.floor(Math.random()*20)+1;setName()}});const norm=e=>{let r=cv.getBoundingClientRect();mx=(e.clientX-r.left);my=(e.clientY-r.top)};cv.onpointerdown=()=>{down=1;burst=20};cv.onpointerup=()=>down=0;cv.onpointermove=e=>{norm(e)};let stars=[...Array(600)].map(()=>({x:Math.random()*W,y:Math.random()*H,z:Math.random()*2+0.5})),pts=[...Array(220)].map(()=>({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.6,vy:(Math.random()-.5)*.6,s:Math.random()*2+1,h:Math.random()*360})),hex=[],gS=28;const mkHex=()=>{hex.length=0;let a=3**.5/2;for(let y=-gS;y<gS;y++)for(let x=-gS;x<gS;x++){let px=W/2+(x+y*0.5)*22,py=H/2+(y*a)*22;hex.push({x:px,y:py,w:Math.random()})}};mkHex();function fade(a=.08){k.fillStyle=`rgba(5,6,10,${a})`;k.fillRect(0,0,W,H)}function HSL(h,s,l,a=1){return `hsla(${h%360},${s}%,${l}%,${a})`}function loop(){let t=(performance.now()/1e3-t0)*sp;fade(.06);k.save();k.globalCompositeOperation='source-over';switch(md){case 1:{// Neon Trails
-k.globalCompositeOperation='lighter';for(let i=0;i<pts.length;i++){let p=pts[i],dx=mx-p.x,dy=my-p.y,ds=Math.hypot(dx,dy)+1;p.vx+=dx/ds*.02;p.vy+=dy/ds*.02;p.vx*=.985;p.vy*=.985;p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>W)p.vx*=-1;if(p.y<0||p.y>H)p.vy*=-1;p.h=(p.h+.6)%360;k.fillStyle=HSL(p.h,100,65,.8);k.beginPath();k.arc(p.x,p.y,p.s+Math.sin(t*2+i)*.8,0,7);k.fill()}}break;case 2:{// Plasma Blobs
-k.globalCompositeOperation='lighter';for(let i=0;i<28;i++){let r=120+60*Math.sin(t*.7+i),x=W/2+Math.cos(t*.9+i)*W*.3,y=H/2+Math.sin(t*.8+i*1.3)*H*.3;k.fillStyle=HSL(i*12+ t*40,90,55,.08);let g=k.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,HSL(i*12+t*30,100,65,.6));g.addColorStop(1,'rgba(0,0,0,0)');k.fillStyle=g;k.beginPath();k.arc(x,y,r,0,7);k.fill()}}break;case 3:{// Kaleido Lines
-k.translate(W/2,H/2);let n=16;for(let i=0;i<n;i++){k.rotate(Math.PI*2/n);k.strokeStyle=HSL(i*20+t*40,100,70,.6);k.lineWidth=2;k.beginPath();for(let j=0;j<40;j++){let rr=40+ j*8 + 18*Math.sin(t*1.8+j*.3+i);k.lineTo(Math.cos(j*.2+t*.6)*rr,Math.sin(j*.2-t*.6)*rr)}k.stroke()}k.setTransform(DPR,0,0,DPR,0,0)}break;case 4:{// Ripple Rings
-k.globalCompositeOperation='lighter';for(let i=0;i<12;i++){let r=((t*140+i*60)%Math.max(W,H));k.strokeStyle=HSL(i*30+t*50,100,60,1-r/Math.max(W,H));k.lineWidth=2;k.beginPath();k.arc(mx,my,r,0,7);k.stroke()}}break;case 5:{// Vortex
-k.translate(W/2,H/2);for(let i=0;i<220;i++){let a=i*.07+t*.8,r=2+i*2;let x=Math.cos(a)*r,y=Math.sin(a)*r;k.fillStyle=HSL(i*.9+t*60,100,60,.7);k.fillRect(x,y,2,2)}k.setTransform(DPR,0,0,DPR,0,0)}break;case 6:{// Sand Bands
-for(let y=0;y<H;y+=8){k.strokeStyle=HSL((y*.2+t*30)%360,80,50,.8);k.beginPath();for(let x=0;x<W;x+=8){let yy=y+Math.sin(x*.02+t*1.2+y*.01)*6;k.lineTo(x,yy)}k.stroke()}}break;case 7:{// Hex Glow
-k.globalCompositeOperation='lighter';for(let i=0;i<hex.length;i++){let h=hex[i];let r=10+6*Math.sin(t*1.2+h.w*10);k.strokeStyle=HSL(h.w*360+t*40,90,60,.35);k.lineWidth=1.5;k.beginPath();for(let a=0;a<6;a++){let th=(Math.PI/3)*a, x=h.x+Math.cos(th)*r, y=h.y+Math.sin(th)*r;a?k.lineTo(x,y):k.moveTo(x,y)}k.closePath();k.stroke()}}break;case 8:{// Starfield
-k.fillStyle='rgba(0,0,0,0.2)';k.fillRect(0,0,W,H);k.fillStyle='#fff';for(let i=0;i<stars.length;i++){let s=stars[i];s.x+=(mx-W/2)/600*s.z*sp;s.y+=(my-H/2)/600*s.z*sp;let w=1+s.z*1.2;k.globalAlpha=.6;k.fillRect((s.x+W)%W,(s.y+H)%H,w,w)}}break;case 9:{// Aurora Ribbons
-k.globalCompositeOperation='lighter';for(let i=0;i<5;i++){k.beginPath();k.strokeStyle=HSL(i*60+t*20,100,70,.25);k.lineWidth=12;k.moveTo(0,H*.6);for(let x=0;x<=W;x+=20){let y=H*.5+Math.sin(x*.01+t*1.2+i)*60+Math.cos(t*.7+i*2)*40;k.lineTo(x,y)}k.stroke()}}break;case 10:{// Lava Lamps
-k.globalCompositeOperation='lighter';for(let i=0;i<15+burst;i++){let x=W/2+Math.cos(t*.6+i)*W*.35,y=H/2+Math.sin(t*.7+i*1.3)*H*.35,r=60+40*Math.sin(t*1.3+i);let g=k.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,HSL(i*24+t*30,100,60,.35));g.addColorStop(1,'rgba(0,0,0,0)');k.fillStyle=g;k.beginPath();k.arc(x,y,r,0,7);k.fill()}burst=Math.max(0,burst-.5)}break;case 11:{// Marble Stripes
-for(let x=0;x<W;x+=4){let yoff=40*Math.sin(x*.02+t*1.1)+60*Math.sin(x*.013-t*.8);k.strokeStyle=HSL(x*.2+t*30,90,55,.2);k.beginPath();k.moveTo(x,0);for(let y=0;y<H;y+=10){k.lineTo(x+Math.sin(y*.03+t+.002*x)*8, y+yoff*.005)}k.stroke()}}break;case 12:{// Sunburst
-k.translate(W/2,H/2);let n=120;for(let i=0;i<n;i++){let a=i*(Math.PI*2/n)+t*.4;k.strokeStyle=HSL(i*3+t*40,100,65,.5);k.beginPath();k.moveTo(0,0);k.lineTo(Math.cos(a)*Math.max(W,H),Math.sin(a)*Math.max(W,H));k.stroke()}k.setTransform(DPR,0,0,DPR,0,0)}break;case 13:{// Ocean Waves
-k.fillStyle='rgba(0,0,0,0.12)';k.fillRect(0,0,W,H);for(let i=0;i<6;i++){k.beginPath();k.strokeStyle=HSL(200+i*8+t*10,80,60,.5);k.lineWidth=2;k.moveTo(0,H*.5);for(let x=0;x<=W;x+=8){let y=H*.6+Math.sin(x*.02+t*(.8+i*.1))*18+i*8;k.lineTo(x,y)}k.stroke()}}break;case 14:{// Cell Garden
-for(let i=0;i<180;i++){let x=Math.random()*W,y=Math.random()*H;rnd:0;k.fillStyle=HSL((x+y)*.05+t*40,90,60,.12);k.beginPath();k.arc(x,y,6+6*Math.random(),0,7);k.fill()}}break;case 15:{// Lens Garden
-k.globalCompositeOperation='lighter';for(let i=0;i<70;i++){let r=6+Math.random()*26,x=Math.random()*W,y=Math.random()*H;k.fillStyle=HSL((x*.2+y*.2+t*60)%360,90,65,.12);k.beginPath();k.arc(x,y,r,0,7);k.fill()}}break;case 16:{// Dreamscape
-for(let i=0;i<36;i++){let x=W/2+Math.cos(t*.6+i)*W*.4,y=H/2+Math.sin(t*.7+i*1.2)*H*.35;k.strokeStyle=HSL(i*10+t*50,100,70,.35);k.beginPath();k.moveTo(x,y);for(let j=0;j<6;j++){let nx=x+Math.cos(t+i+j)*60,ny=y+Math.sin(t*.9+i*1.2+j)*60;k.quadraticCurveTo((x+nx)/2+Math.sin(t+i)*20,(y+ny)/2+Math.cos(t+i)*20,nx,ny);x=nx;y=ny}k.stroke()}}break;case 17:{// Spiral Flow
-k.translate(W/2,H/2);k.globalCompositeOperation='lighter';for(let i=0;i<200;i++){let a=i*.08+t*.9,r=3+i*1.6;k.fillStyle=HSL(i*.8+t*60,100,60,.6);k.fillRect(Math.cos(a)*r,Math.sin(a)*r,2,2)}k.setTransform(DPR,0,0,DPR,0,0)}break;case 18:{// Circuit Grid
-k.strokeStyle='rgba(160,180,210,.25)';for(let y=0;y<H;y+=24){for(let x=0;x<W;x+=24){k.strokeRect(x+.5,y+.5,22,22);if((x+y+Math.floor(t*60))%48===0){k.fillStyle=HSL((x+y+t*120)%360,90,60,.6);k.fillRect(x+8,y+8,6,6)}}}}break;case 19:{// Glass Grid
-k.globalCompositeOperation='lighter';for(let i=0;i<20;i++){let y=(i/20)*H+Math.sin(t+i)*20;k.fillStyle=HSL(180+i*6+t*20,90,60,.05);k.fillRect(0,y,W,12)}for(let i=0;i<20;i++){let x=(i/20)*W+Math.cos(t+i)*20;k.fillStyle=HSL(300+i*5+t*20,90,60,.05);k.fillRect(x,0,12,H)}}break;default:{// Nebula
-k.globalCompositeOperation='lighter';for(let i=0;i<40+burst;i++){let x=W/2+Math.cos(t*.7+i)*W*.35,y=H/2+Math.sin(t*.6+i*1.1)*H*.35,r=80+50*Math.sin(t*1.1+i);let g=k.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,HSL(i*12+t*40,100,65,.25));g.addColorStop(1,'rgba(0,0,0,0)');k.fillStyle=g;k.beginPath();k.arc(x,y,r,0,7);k.fill()}burst=Math.max(0,burst-.4)}}k.restore();requestAnimationFrame(loop)}requestAnimationFrame(loop)})();</script>
+<!doctypehtml>
+  <html lang=en>
+    <meta charset=utf-8>
+    <meta content="width=device-width,initial-scale=1" name=viewport>
+    <title>arz.is-a.dev</title>
+    <style>
+      body,
+      html {
+        margin: 0;
+        height: 100%;
+        background: #05060a;
+        color: #e6ecff;
+        font: 400 18px/1.4 ui-monospace, Menlo, Consolas, monospace;
+        user-select: none;
+        overflow: hidden
+      }
+
+      #c {
+        position: fixed;
+        inset: 0
+      }
+
+      #hdr {
+        position: fixed;
+        left: 50%;
+        top: 14px;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        background: #0008;
+        border: 1px solid #ffffff26;
+        padding: 6px 10px;
+        border-radius: 10px;
+        backdrop-filter: blur(8px);
+        z-index: 1000
+      }
+
+      #tt {
+        letter-spacing: .3px;
+        cursor: pointer;
+        transition: all .3s ease
+      }
+
+      #tt:hover {
+        opacity: .8;
+        transform: scale(1.05)
+      }
+
+      #hn {
+        position: fixed;
+        right: 14px;
+        bottom: 14px;
+        opacity: .28;
+        transition: opacity .6s;
+        pointer-events: none;
+        font-size: 18px
+      }
+
+      #hn.hide {
+        opacity: 0
+      }
+
+      #debug {
+        position: fixed;
+        left: 14px;
+        bottom: 14px;
+        background: #0008;
+        border: 1px solid #ffffff26;
+        padding: 8px 12px;
+        border-radius: 8px;
+        font-size: 12px;
+        line-height: 1.3;
+        opacity: .7;
+        transition: opacity .3s;
+        backdrop-filter: blur(4px);
+        pointer-events: none;
+        z-index: 999
+      }
+
+      #debug:hover {
+        opacity: .9
+      }
+
+      #debug.hide {
+        opacity: 0
+      }
+
+      #loader {
+        position: fixed;
+        inset: 0;
+        background: #05060a;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 2000;
+        transition: opacity 1.5s ease-in-out
+      }
+
+      #loader.fade-out {
+        opacity: 0;
+        pointer-events: none
+      }
+
+      .spinner {
+        width: 40px;
+        height: 40px;
+        border: 3px solid #ffffff26;
+        border-top: 3px solid #e6ecff;
+        border-radius: 50%;
+        animation: spin 1s linear infinite
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0)
+        }
+
+        100% {
+          transform: rotate(360deg)
+        }
+      }
+
+      #fallback {
+        position: fixed;
+        inset: 0;
+        background: linear-gradient(45deg, #0a0a1a, #1a1a2e);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 3000;
+        color: #e6ecff;
+        text-align: center;
+        padding: 20px
+      }
+
+      #fallback.show {
+        display: flex
+      }
+
+      .fallback-content {
+        background: #0008;
+        padding: 30px;
+        border-radius: 15px;
+        border: 1px solid #ffffff26;
+        backdrop-filter: blur(10px)
+      }
+
+      @media (max-width:768px) {
+        #hdr {
+          top: 8px;
+          padding: 4px 8px;
+          font-size: 14px
+        }
+
+        #debug {
+          left: 8px;
+          bottom: 8px;
+          font-size: 10px
+        }
+
+        #hn {
+          right: 8px;
+          bottom: 8px;
+          font-size: 14px
+        }
+      }
+
+      @media (max-width:480px) {
+        #hdr {
+          top: 6px;
+          padding: 3px 6px;
+          font-size: 12px
+        }
+
+        #debug {
+          display: none
+        }
+      }
+    </style><canvas id=c></canvas>
+    <div id=loader>
+      <div class=spinner></div>
+    </div>
+    <div id=hdr><span id=tt>arz.is-a.dev</span></div>
+    <div id=hn aria-hidden=true>← → ↻ ⌾ ⇄ ⤿</div>
+    <div id=debug>
+      <div>FPS: <span id=fps>0</span></div>
+      <div>Mode: <span id=mode>0</span></div>
+      <div>Memory: <span id=memory>0</span>MB</div>
+    </div>
+    <div id=fallback>
+      <div class=fallback-content>
+        <h3>Rendering Engine Active</h3>
+        <p>Advanced generative visualization running
+        <div style=margin-top:15px;font-size:14px;opacity:.7>If content doesn't appear,<br>please refresh the page</div>
+      </div>
+    </div>
+    <script>
+      (() => {
+        "use strict";
+        const CFG = {
+          dprMax: 2,
+          autoOn: 1,
+          autoSec: 60,
+          transSec: 1.05,
+          wheelThresh: 160,
+          longPressMs: 3000,
+          seed: null,
+          hueDrift: 8,
+          avoidRepeat: 5,
+          palette: {
+            s: [78, 100],
+            l: [42, 72],
+            a: [.06, .9]
+          },
+          fillsBias: 1,
+          micReactive: 1,
+          cover: "mirror4",
+          fadeAmt: .03,
+          camRotSpeed: .0025,
+          camZoomSpeed: .002,
+          zoomMin: .85,
+          zoomMax: 2.2,
+          burstTime: .9,
+          debugMode: !0,
+          introDuration: 2,
+          errorRetryDelay: 3e3,
+          minFPS: 42,
+          recFPS: 58,
+          scaleSteps: [1, .9, .8, .7, .6],
+          qualityLerpSec: .6
+        };
+        let initializationComplete = !1,
+          errorState = !1,
+          retryTimeout = null;
+        const showErrorFallback = e => {
+            errorState = !0;
+            const t = document.getElementById("fallback"),
+              n = t.querySelector(".fallback-content");
+            n.innerHTML = `<h3>Rendering Optimization</h3><p>${e}</p><div style="margin-top:15px;font-size:14px;opacity:0.7">System recalibrating...</div>`, t.classList.add("show"), clearTimeout(retryTimeout), retryTimeout = setTimeout(() => {
+              errorState = !1, t.classList.remove("show"), attemptRecovery()
+            }, CFG.errorRetryDelay)
+          },
+          attemptRecovery = () => {
+            try {
+              rebuildPools(), refreshParams(md), initializationComplete = !0
+            } catch {
+              showErrorFallback("Advanced rendering engaged")
+            }
+          },
+          perf = {
+            frameCount: 0,
+            lastFpsUpdate: 0,
+            fps: 0,
+            memory: 0,
+            lastTime: 0
+          };
+        let Q = 1,
+          RSFidx = 0,
+          RSF = CFG.scaleSteps[RSFidx],
+          areaScale = 1,
+          areaScaleEff = 1;
+
+        function setRenderScaleByIndex(e) {
+          e = Math.max(0, Math.min(CFG.scaleSteps.length - 1, e)), e !== RSFidx && (RSFidx = e, RSF = CFG.scaleSteps[RSFidx], RS())
+        }
+
+        function approach(e, t, n, a) {
+          const o = t - e,
+            r = Math.sign(o) * Math.min(Math.abs(o), n * a);
+          return e + r
+        }
+        const updatePerformanceStats = e => {
+          const t = 0 === perf.lastTime ? 0 : e - perf.lastTime;
+          perf.lastTime = e, perf.frameCount++, e - perf.lastFpsUpdate >= 1 && (perf.fps = Math.round(perf.frameCount / (e - perf.lastFpsUpdate)), perf.frameCount = 0, perf.lastFpsUpdate = e, performance.memory && (perf.memory = Math.round(performance.memory.usedJSHeapSize / 1048576)), perf.fps < CFG.minFPS && RSFidx < CFG.scaleSteps.length - 1 ? setRenderScaleByIndex(RSFidx + 1) : perf.fps > CFG.recFPS && RSFidx > 0 && setRenderScaleByIndex(RSFidx - 1), CFG.debugMode && (document.getElementById("fps").textContent = perf.fps, document.getElementById("mode").textContent = md, document.getElementById("memory").textContent = perf.memory));
+          const n = perf.fps >= 60 ? 1.05 : perf.fps >= 50 ? 1 : perf.fps >= 40 ? .9 : .8;
+          Q = approach(Q, n, 1 / CFG.qualityLerpSec, t), areaScaleEff = areaScale * Q
+        };
+        let introProgress = 1,
+          introStartTime = 0;
+        const startIntroAnimation = e => {
+            introStartTime = e;
+            const t = document.getElementById("loader"),
+              n = e => {
+                const a = e - introStartTime;
+                introProgress = Math.max(0, 1 - a / (1e3 * CFG.introDuration)), a >= 1e3 * CFG.introDuration ? (t.classList.add("fade-out"), setTimeout(() => {
+                  t.style.display = "none"
+                }, 1500)) : requestAnimationFrame(n)
+              };
+            requestAnimationFrame(n)
+          },
+          d = document,
+          q = e => d.querySelector(e),
+          cv = q("#c"),
+          kt = cv.getContext("2d", {
+            alpha: !1,
+            desynchronized: !0
+          }),
+          DPR = Math.min(devicePixelRatio || 1, CFG.dprMax);
+        let W = 0,
+          H = 0;
+        const ca = d.createElement("canvas"),
+          cb = d.createElement("canvas"),
+          ka = ca.getContext("2d"),
+          kb = cb.getContext("2d"),
+          RS = () => {
+            try {
+              W = innerWidth, H = innerHeight, cv.width = W * DPR, cv.height = H * DPR, cv.style.width = W + "px", cv.style.height = H + "px", kt.setTransform(DPR, 0, 0, DPR, 0, 0);
+              const e = Math.max(1, Math.floor(W * DPR * RSF)),
+                t = Math.max(1, Math.floor(H * DPR * RSF));
+              [ca, cb].forEach(n => {
+                n.width = e, n.height = t
+              }), ka.setTransform(1, 0, 0, 1, 0, 0), kb.setTransform(1, 0, 0, 1, 0, 0), areaScale = W * H / 921600, areaScaleEff = areaScale * Q, initializationComplete && rebuildPools()
+            } catch {
+              showErrorFallback("Display optimization in progress")
+            }
+          };
+        addEventListener("resize", RS, {
+          passive: !0
+        });
+        let ss = null == CFG.seed ? Date.now() ^ Math.random() * 1e9 | 0 : CFG.seed | 0,
+          rs = ss;
+        const rng = () => ((rs ^= rs << 13, rs ^= rs >>> 17, rs ^= rs << 5), (rs >>> 0) / 4294967296),
+          rni = (e, t) => e + Math.floor(rng() * (t - e + 1)),
+          rnf = (e, t) => e + rng() * (t - e),
+          rch = e => e[Math.floor(rng() * e.length)],
+          HSL = (e, t, n, a = 1) => `hsla(${(e%360+360)%360},${t}%,${n}%,${a})`;
+        let H0 = rni(0, 359),
+          md = 1,
+          rd = 1,
+          am = CFG.autoOn | 0,
+          ai = CFG.autoSec,
+          td = CFG.transSec,
+          tr = 0,
+          ts = 0,
+          om = md,
+          lock = 0,
+          down = 0,
+          mx = W * DPR / 2,
+          my = H * DPR / 2,
+          sp = 1,
+          t0 = performance.now() / 1e3,
+          acc = 0,
+          lp, gRot = 0,
+          gZoom = 1,
+          bx = 0,
+          by = 0,
+          burstUntil = 0,
+          lastX = mx,
+          lastY = my,
+          tt = q("#tt"),
+          hn = q("#hn"),
+          debugPanel = q("#debug"),
+          hideHint = () => hn.classList.add("hide"),
+          norm = e => {
+            let t = cv.getBoundingClientRect();
+            lastX = mx, lastY = my, mx = (e.clientX - t.left) * DPR, my = (e.clientY - t.top) * DPR
+          };
+        cv.onpointerdown = e => {
+          try {
+            down = 1, norm(e), burstUntil = performance.now() / 1e3 + CFG.burstTime, lp = setTimeout(() => {
+              rd ^= 1, goNext()
+            }, CFG.longPressMs)
+          } catch {}
+        };
+        cv.onpointerup = (() => {
+          down = 0, clearTimeout(lp)
+        }), cv.onpointerleave = (() => {
+          down = 0
+        }), cv.onpointermove = e => {
+          try {
+            if (norm(e), down) {
+              let t = mx - lastX,
+                n = my - lastY;
+              gRot += t * CFG.camRotSpeed, gZoom = Math.max(CFG.zoomMin, Math.min(CFG.zoomMax, gZoom - n * CFG.camZoomSpeed))
+            }
+          } catch {}
+        };
+        cv.oncontextmenu = e => {
+          e.preventDefault(), rd = 1, goNext()
+        }, addEventListener("wheel", e => {
+          if (hideHint(), !lock) {
+            if (acc += e.deltaY, Math.abs(acc) > CFG.wheelThresh) {
+              acc = 0, (e.deltaY > 0 ? goNext : goPrev)()
+            }
+          }
+        }, {
+          passive: !0
+        }), addEventListener("keydown", e => {
+          if (hideHint(), !lock) {
+            let t = e.key.toLowerCase();
+            "arrowright" === t ? goNext() : "arrowleft" === t ? goPrev() : "a" === t ? (am ^= 1, tt.style.opacity = am ? .92 : 1) : "r" === t ? rd ^= 1 : "+" === t ? ai = Math.min(120, ai + 1) : "-" === t ? ai = Math.max(3, ai - 1) : "x" === t && !e.shiftKey ? td = Math.min(4, td + .1) : "x" === t && e.shiftKey ? td = Math.max(.4, td - .1) : "m" === t && CFG.micReactive ? tgMic() : "d" === t && CFG.debugMode && debugPanel.classList.toggle("hide")
+          }
+        }), tt.onclick = (() => {
+          am ^= 1, tt.style.opacity = am ? .92 : 1
+        });
+        let ac, an, af;
+        const tgMic = async () => {
+          try {
+            if (ac) {
+              ("suspended" === ac.state ? ac.resume() : ac.suspend())
+            } else {
+              ac = new(window.AudioContext || window.webkitAudioContext);
+              let e = await navigator.mediaDevices.getUserMedia({
+                  audio: !0
+                }),
+                t = ac.createMediaStreamSource(e);
+              an = ac.createAnalyser(), an.fftSize = 1024, af = new Uint8Array(an.frequencyBinCount), t.connect(an)
+            }
+          } catch {
+            console.warn("Audio system not available")
+          }
+        }, MODES = [{
+          family: "kaleido",
+          k: 6,
+          freq: .6,
+          rad: 1,
+          fill: .8,
+          name: "Quantum Kaleidoscope"
+        }, {
+          family: "kaleido",
+          k: 8,
+          freq: .8,
+          rad: 1.2,
+          fill: .3,
+          name: "Fractal Symmetry"
+        }, {
+          family: "kaleido",
+          k: 12,
+          freq: 1,
+          rad: .9,
+          fill: .6,
+          name: "Crystalline Matrix"
+        }, {
+          family: "kaleido",
+          k: 16,
+          freq: 1.4,
+          rad: .7,
+          fill: .7,
+          name: "Infinite Reflection"
+        }, {
+          family: "kaleido",
+          k: 10,
+          freq: 1.2,
+          rad: 1.1,
+          fill: .4,
+          name: "Harmonic Resonance"
+        }, {
+          family: "blobs",
+          layers: 16,
+          wob: 1,
+          amp: 1.2,
+          name: "Liquid Dynamics"
+        }, {
+          family: "blobs",
+          layers: 10,
+          wob: .6,
+          amp: .8,
+          name: "Organic Morphology"
+        }, {
+          family: "blobs",
+          layers: 22,
+          wob: 1.6,
+          amp: 1.4,
+          name: "Plasma Fields"
+        }, {
+          family: "sun",
+          rays: 160,
+          spin: .45,
+          name: "Solar Flare"
+        }, {
+          family: "sun",
+          rays: 220,
+          spin: .28,
+          name: "Stellar Corona"
+        }, {
+          family: "vortex",
+          dens: 1.1,
+          step: .065,
+          name: "Quantum Vortex"
+        }, {
+          family: "vortex",
+          dens: 1.6,
+          step: .055,
+          name: "Gravitational Spin"
+        }, {
+          family: "rings",
+          bands: 14,
+          name: "Orbital Resonance"
+        }, {
+          family: "rings",
+          bands: 20,
+          name: "Frequency Rings"
+        }, {
+          family: "hex",
+          name: "Hexagonal Mesh"
+        }, {
+          family: "hex",
+          name: "Crystal Lattice"
+        }, {
+          family: "stars",
+          name: "Stellar Nursery"
+        }, {
+          family: "aurora",
+          int: 6,
+          name: "Polar Aurora"
+        }, {
+          family: "aurora",
+          int: 4,
+          name: "Magnetic Fields"
+        }, {
+          family: "lava",
+          n: 16,
+          name: "Volcanic Flow"
+        }, {
+          family: "lava",
+          n: 24,
+          name: "Magma Chambers"
+        }, {
+          family: "marble",
+          step: 4,
+          name: "Quantum Marble"
+        }, {
+          family: "marble",
+          step: 6,
+          name: "Fluid Dynamics"
+        }, {
+          family: "ocean",
+          waves: 7,
+          name: "Deep Ocean"
+        }, {
+          family: "ocean",
+          waves: 5,
+          name: "Surface Tension"
+        }, {
+          family: "cells",
+          dens: 220,
+          name: "Cellular Automata"
+        }, {
+          family: "cells",
+          dens: 320,
+          name: "Neural Network"
+        }, {
+          family: "lens",
+          n: 80,
+          name: "Optical Lens"
+        }, {
+          family: "lens",
+          n: 110,
+          name: "Refraction Field"
+        }, {
+          family: "dream",
+          n: 28,
+          name: "Dream State"
+        }, {
+          family: "dream",
+          n: 42,
+          name: "Conscious Stream"
+        }, {
+          family: "spiral",
+          dens: 1.2,
+          name: "Fibonacci Spiral"
+        }, {
+          family: "spiral",
+          dens: 1.7,
+          name: "Golden Ratio"
+        }, {
+          family: "circuit",
+          name: "Neural Circuit"
+        }, {
+          family: "glass",
+          name: "Quantum Glass"
+        }, {
+          family: "nebula",
+          n: 30,
+          name: "Cosmic Nebula"
+        }, {
+          family: "nebula",
+          n: 40,
+          name: "Interstellar Cloud"
+        }, {
+          family: "phyllo",
+          div: 137.5,
+          dots: 1600,
+          name: "Phyllotaxis"
+        }, {
+          family: "phyllo",
+          div: 137.3,
+          dots: 2000,
+          name: "Natural Growth"
+        }, {
+          family: "spiro",
+          rings: 14,
+          name: "Spirograph"
+        }, {
+          family: "spiro",
+          rings: 22,
+          name: "Harmonic Motion"
+        }, {
+          family: "super",
+          m: 6,
+          n: [1, 1, 1],
+          scale: 1,
+          name: "Super Formula"
+        }, {
+          family: "super",
+          m: 7,
+          n: [.2, 1.7, 1.7],
+          scale: 1.2,
+          name: "Complex Geometry"
+        }, {
+          family: "epitro",
+          R: 140,
+          r: 42,
+          d: 70,
+          name: "Epicycloid"
+        }, {
+          family: "epitro",
+          R: 180,
+          r: 60,
+          d: 96,
+          name: "Mathematical Rose"
+        }, {
+          family: "field",
+          charges: 5,
+          name: "Vector Field"
+        }, {
+          family: "field",
+          charges: 7,
+          name: "Force Field"
+        }, {
+          family: "kaleido",
+          k: 14,
+          freq: .9,
+          rad: 1,
+          fill: .5,
+          name: "Complex Plane"
+        }, {
+          family: "blobs",
+          layers: 18,
+          wob: 1.2,
+          amp: 1.1,
+          name: "Wave Interference"
+        }, {
+          family: "lissajous",
+          freqX: 3,
+          freqY: 2,
+          name: "Lissajous Curve"
+        }, {
+          family: "mandala",
+          layers: 8,
+          symmetry: 12,
+          name: "Sacred Geometry"
+        }], MC = MODES.length;
+        md = rni(1, MC);
+        const lastQ = [],
+          P = new Map(),
+          pickS = e => Math.round(rnf(e[0], e[1])),
+          mkPal = () => ({
+            h: (H0 + rni(-60, 60)) % 360,
+            s: pickS(CFG.palette.s),
+            l: pickS(CFG.palette.l)
+          });
+
+        function mkParams(e) {
+          try {
+            const t = MODES[e - 1],
+              n = mkPal(),
+              a = rnf(.02, .12),
+              o = rnf(.8, 2),
+              r = Math.round(rni(120, 400) * areaScaleEff),
+              l = rnf(.7, 1.5),
+              i = rnf(.7, 1.3),
+              c = rnf(.5, 2),
+              s = rnf(CFG.palette.a[0], CFG.palette.a[1]),
+              f = CFG.fillsBias ? rnf(.7, 1) : rnf(.3, .7),
+              u = rng() > .35,
+              h = t.k || rni(8, 18);
+            return {
+              def: t,
+              pal: n,
+              drift: a,
+              amp: o,
+              dens: r,
+              rad: l,
+              spd: i,
+              wob: c,
+              alf: s,
+              fillBias: f,
+              hasGlow: u,
+              kSym: h,
+              seed: ss ^ (2654435761 * e) >>> 0
+            }
+          } catch {
+            return {
+              def: MODES[e - 1],
+              pal: {
+                h: 200,
+                s: 90,
+                l: 60
+              },
+              drift: .1,
+              amp: 1,
+              dens: 200,
+              rad: 1,
+              spd: 1,
+              wob: 1,
+              alf: .5,
+              fillBias: .5,
+              hasGlow: !1,
+              kSym: 8,
+              seed: 12345
+            }
+          }
+        }
+        const getP = e => {
+            if (!P.has(e)) P.set(e, mkParams(e));
+            return P.get(e)
+          },
+          refreshParams = e => P.set(e, mkParams(e));
+        let stars = [],
+          pts = [],
+          hex = [],
+          gS = 28;
+
+        function rebuildPools() {
+          try {
+            stars = Array.from({
+              length: Math.round(900 * areaScaleEff)
+            }, () => ({
+              x: rng() * W * DPR,
+              y: rng() * H * DPR,
+              z: rnf(.5, 2.8)
+            })), pts = Array.from({
+              length: Math.round(360 * areaScaleEff)
+            }, () => ({
+              x: rng() * W * DPR,
+              y: rng() * H * DPR,
+              vx: (rng() - .5) * .7,
+              vy: (rng() - .5) * .7,
+              s: rnf(1, 3.2),
+              h: rni(0, 359)
+            })), hex.length = 0;
+            let e = Math.sqrt(3) / 2;
+            for (let t = -gS; t < gS; t++)
+              for (let n = -gS; n < gS; n++) {
+                let a = W * DPR / 2 + (n + .5 * t) * 22,
+                  o = H * DPR / 2 + e * t * 22;
+                hex.push({
+                  x: a,
+                  y: o,
+                  w: rng()
+                })
+              }
+          } catch {
+            console.warn("Pool optimization in progress"), stars = [{
+              x: W * DPR / 2,
+              y: H * DPR / 2,
+              z: 1
+            }], pts = [{
+              x: W * DPR / 2,
+              y: H * DPR / 2,
+              vx: 0,
+              vy: 0,
+              s: 1,
+              h: 0
+            }]
+          }
+        }
+        const fade = (e, t = CFG.fadeAmt) => {
+            e.fillStyle = `rgba(5,6,10,${t})`, e.fillRect(0, 0, ca.width, ca.height)
+          },
+          fadeBG = e => {
+            e.fillStyle = `rgba(5,6,10,${CFG.fadeAmt})`, e.fillRect(0, 0, ca.width, ca.height)
+          };
+
+        function withCamera(e, t) {
+          try {
+            const n = ca.width,
+              a = ca.height;
+            e.save(), e.translate(n / 2, a / 2), e.scale(gZoom, gZoom), e.rotate(gRot), e.translate(-n / 2, -a / 2), t(), e.restore()
+          } catch {
+            t()
+          }
+        }
+
+        function F_kaleido(e, t, n) {
+          withCamera(e, () => {
+            let a = ca.width,
+              o = ca.height,
+              r = t.kSym;
+            e.save(), e.translate(a / 2, o / 2);
+            for (let l = 0; l < r; l++) {
+              e.save(), e.rotate(l * (2 * Math.PI / r)), l % 2 && e.scale(1, -1), e.strokeStyle = HSL(t.pal.h + n * CFG.hueDrift * t.drift + 8 * l, t.pal.s, t.pal.l, .7), e.lineWidth = 2.2, e.beginPath();
+              const i = Math.round(84 * Q);
+              for (let c = 0; c < i; c++) {
+                let s = 80 + 7 * c * t.def.rad + 26 * Math.sin(n * t.def.freq + .24 * c);
+                e.lineTo(Math.cos(.16 * c + .7 * n) * s, Math.sin(.16 * c - .7 * n) * s)
+              }
+              e.stroke(), t.fillBias > .6 && (e.fillStyle = HSL(t.pal.h + 12 * l, t.pal.s, t.pal.l - 6, .12), e.beginPath(), e.arc(0, 0, .35 * Math.max(a, o), 0, 7), e.fill()), e.restore()
+            }
+            e.restore()
+          })
+        }
+
+        function F_blobs(e, t, n) {
+          withCamera(e, () => {
+            e.globalCompositeOperation = "lighter";
+            let a = ca.width,
+              o = ca.height,
+              r = Math.round((t.def.layers + 6 * t.amp) * Q);
+            for (let l = 0; l < r; l++) {
+              let i = 160 + 120 * t.rad * Math.sin(.7 * n + l),
+                c = a / 2 + Math.cos(.9 * n + l * t.wob) * .35 * a,
+                s = o / 2 + Math.sin(.8 * n + 1.3 * l) * .35 * o,
+                f = e.createRadialGradient(c, s, 0, c, s, i);
+              f.addColorStop(0, HSL(t.pal.h + 10 * l, t.pal.s, t.pal.l, .42)), f.addColorStop(1, "rgba(0,0,0,0)"), e.fillStyle = f, e.beginPath(), e.arc(c, s, i, 0, 7), e.fill()
+            }
+          })
+        }
+
+        function F_lissajous(e, t, n) {
+          withCamera(e, () => {
+            let a = ca.width,
+              o = ca.height;
+            e.translate(a / 2, o / 2);
+            const r = t.def.freqX || 3,
+              l = t.def.freqY || 2,
+              i = .3 * Math.min(a, o);
+            e.strokeStyle = HSL(t.pal.h, t.pal.s, t.pal.l, .8), e.lineWidth = 1.5, e.beginPath();
+            for (let c = 0; c <= 628; c += .1 / Q) {
+              let s = Math.cos(r * c + n) * i,
+                f = Math.sin(l * c + n) * i;
+              0 === c ? e.moveTo(s, f) : e.lineTo(s, f)
+            }
+            e.stroke();
+            const c = Math.max(4, Math.round(2 * r * l * Q));
+            for (let s = 0; s < c; s++) {
+              let f = .5 * s,
+                u = Math.cos(r * f + n) * i,
+                h = Math.sin(l * f + n) * i;
+              e.fillStyle = HSL(t.pal.h + 30 * s, t.pal.s, t.pal.l, .9), e.beginPath(), e.arc(u, h, 3 + 2 * Math.sin(2 * n + s), 0, 7), e.fill()
+            }
+          })
+        }
+
+        function F_mandala(e, t, n) {
+          withCamera(e, () => {
+            let a = ca.width,
+              o = ca.height;
+            e.translate(a / 2, o / 2);
+            const r = t.def.layers || 8,
+              l = t.def.symmetry || 12;
+            for (let i = 1; i <= r; i++) {
+              const c = 25 * i,
+                s = Math.round(6 * i * Q);
+              for (let f = 0; f < l; f++) {
+                e.save(), e.rotate(f * (2 * Math.PI / l)), e.strokeStyle = HSL(t.pal.h + 20 * i + 10 * f, t.pal.s, t.pal.l, .6), e.lineWidth = 1.2, e.beginPath();
+                for (let u = 0; u <= s; u++) {
+                  let h = u / s * 2 * Math.PI + .3 * n,
+                    g = c + 15 * Math.sin(3 * h + n),
+                    p = Math.cos(h) * g,
+                    m = Math.sin(h) * g;
+                  0 === u ? e.moveTo(p, m) : e.lineTo(p, m)
+                }
+                e.stroke(), e.restore()
+              }
+            }
+          })
+        }
+
+        function F_sun(e, t, n) {
+          withCamera(e, () => {
+            let a = ca.width,
+              o = ca.height;
+            e.translate(a / 2, o / 2);
+            let r = Math.round(t.def.rays * Q);
+            for (let l = 0; l < r; l++) {
+              let i = l * (2 * Math.PI / r) + n * t.def.spin;
+              e.strokeStyle = HSL(t.pal.h + 2.5 * l, t.pal.s, t.pal.l, .55), e.beginPath(), e.moveTo(0, 0), e.lineTo(Math.cos(i) * Math.max(a, o), Math.sin(i) * Math.max(a, o)), e.stroke()
+            }
+          })
+        }
+
+        function F_vortex(e, t, n) {
+          withCamera(e, () => {
+            let a = ca.width,
+              o = ca.height;
+            e.translate(a / 2, o / 2);
+            let r = Math.round(220 * t.def.dens * areaScaleEff);
+            e.globalCompositeOperation = t.hasGlow ? "lighter" : "source-over";
+            for (let l = 0; l < r; l++) {
+              let i = l * t.def.step + .9 * n * t.spd,
+                c = 3 + 1.9 * l * t.rad;
+              e.fillStyle = HSL(t.pal.h + .7 * l, t.pal.s, t.pal.l, .75), e.fillRect(Math.cos(i) * c, Math.sin(i) * c, 3, 3)
+            }
+          })
+        }
+
+        function F_rings(e, t, n) {
+          withCamera(e, () => {
+            let a = ca.width,
+              o = ca.height;
+            e.globalCompositeOperation = "lighter";
+            let r = Math.round((t.def.bands + 6) * Q);
+            for (let l = 0; l < r; l++) {
+              let i = (160 * n + 80 * l) % Math.max(a, o);
+              e.strokeStyle = HSL(t.pal.h + 20 * l, t.pal.s, t.pal.l, 1 - i / Math.max(a, o)), e.lineWidth = 2.2, e.beginPath(), e.arc(mx * RSF, my * RSF, i, 0, 7), e.stroke(), t.fillBias > .55 && (e.fillStyle = HSL(t.pal.h + 16 * l, t.pal.s, t.pal.l - 4, .06), e.beginPath(), e.arc(mx * RSF, my * RSF, Math.max(0, i - 8), 0, 7), e.fill())
+            }
+          })
+        }
+
+        function F_hex(e, t, n) {
+          withCamera(e, () => {
+            e.globalCompositeOperation = "lighter";
+            for (let a = 0; a < hex.length; a++) {
+              let o = hex[a],
+                r = 12 + 7 * Math.sin(1.2 * n + 10 * o.w * t.rad);
+              e.strokeStyle = HSL(t.pal.h + 360 * o.w, t.pal.s, t.pal.l, .4), e.lineWidth = 1.6, e.beginPath();
+              for (let l = 0; l < 6; l++) {
+                let i = l * Math.PI / 3,
+                  c = o.x * RSF + Math.cos(i) * r,
+                  s = o.y * RSF + Math.sin(i) * r;
+                l ? e.lineTo(c, s) : e.moveTo(c, s)
+              }
+              e.closePath(), e.stroke(), t.fillBias > .6 && (e.fillStyle = HSL(t.pal.h + 360 * o.w + 30, t.pal.s, t.pal.l, .1), e.fill())
+            }
+          })
+        }
+
+        function F_stars(e, t, n) {
+          withCamera(e, () => {
+            let a = ca.width,
+              o = ca.height;
+            e.fillStyle = "rgba(0,0,0,0.14)", e.fillRect(0, 0, a, o), e.fillStyle = "#fff", e.globalAlpha = .85;
+            for (let r = 0; r < stars.length; r++) {
+              let l = stars[r];
+              l.x += (mx * RSF - a / 2) / 580 * l.z * sp * t.spd, l.y += (my * RSF - o / 2) / 580 * l.z * sp * t.spd;
+              let i = 1 + 1.2 * l.z;
+              e.fillRect((l.x + a) % a, (l.y + o) % o, i, i)
+            }
+            e.globalAlpha = 1
+          })
+        }
+
+        function F_aurora(e, t, n) {
+          withCamera(e, () => {
+            let a = ca.width,
+              o = ca.height;
+            e.globalCompositeOperation = "lighter";
+            let r = Math.max(3, Math.round((t.def.int + 2) * Q));
+            for (let l = 0; l < r; l++) {
+              e.beginPath(), e.strokeStyle = HSL(t.pal.h + 60 * l, t.pal.s, t.pal.l, .32), e.lineWidth = 14, e.moveTo(0, .6 * o);
+              for (let i = 0; i <= a; i += Math.max(12, Math.round(16 / Q))) {
+                let c = .5 * o + 70 * Math.sin(.01 * i + 1.2 * n + l) + 46 * Math.cos(.7 * n + 2 * l);
+                e.lineTo(i, c)
+              }
+              e.stroke(), t.fillBias > .5 && (e.fillStyle = HSL(t.pal.h + 60 * l + 24, t.pal.s, t.pal.l, .06), e.fillRect(0, .52 * o, a, .18 * o))
+            }
+          })
+        }
+
+        function F_lava(e, t, n) {
+          withCamera(e, () => {
+            let a = ca.width,
+              o = ca.height;
+            e.globalCompositeOperation = "lighter";
+            let r = Math.round((t.def.n + 6) * Q);
+            for (let l = 0; l < r; l++) {
+              let i = a / 2 + Math.cos(.6 * n + l) * .38 * a,
+                c = o / 2 + Math.sin(.7 * n + 1.3 * l) * .38 * o,
+                s = 80 + 60 * Math.sin(1.3 * n + l),
+                f = e.createRadialGradient(i, c, 0, i, c, s);
+              f.addColorStop(0, HSL(t.pal.h + 24 * l, t.pal.s, t.pal.l, .38)), f.addColorStop(1, "rgba(0,0,0,0)"), e.fillStyle = f, e.beginPath(), e.arc(i, c, s, 0, 7), e.fill()
+            }
+          })
+        }
+
+        function F_marble(e, t, n) {
+          withCamera(e, () => {
+            let a = ca.width,
+              o = ca.height,
+              r = t.def.step;
+            for (let l = 0; l < a; l += r) {
+              let i = 50 * Math.sin(.02 * l + 1.1 * n) + 70 * Math.sin(.013 * l - .8 * n);
+              e.strokeStyle = HSL(t.pal.h + .12 * l, t.pal.s, t.pal.l, .26), e.beginPath(), e.moveTo(l, 0);
+              for (let c = 0; c < o; c += 8) e.lineTo(l + 9 * Math.sin(.03 * c + n + .002 * l), c + .005 * i);
+              e.stroke()
+            }
+          })
+        }
+
+        function F_ocean(e, t, n) {
+          withCamera(e, () => {
+            let a = ca.width,
+              o = ca.height;
+            e.fillStyle = "rgba(0,0,0,0.1)", e.fillRect(0, 0, a, o);
+            let r = Math.max(3, Math.round(t.def.waves * Q));
+            for (let l = 0; l < r; l++) {
+              e.beginPath(), e.strokeStyle = HSL(200 + 8 * l + t.pal.h % 60, t.pal.s, t.pal.l, .55), e.lineWidth = 2.2, e.moveTo(0, .5 * o);
+              for (let i = 0; i <= a; i += 6) {
+                let c = .6 * o + 22 * Math.sin(.02 * i + (.8 + .1 * l) * n) + 8 * l;
+                e.lineTo(i, c)
+              }
+              e.stroke(), t.fillBias > .5 && (e.fillStyle = HSL(200 + 8 * l + t.pal.h % 60, t.pal.s, t.pal.l, .05), e.fillRect(0, .56 * o, a, 16))
+            }
+          })
+        }
+
+        function F_cells(e, t, n) {
+          withCamera(e, () => {
+            let a = ca.width,
+              o = ca.height,
+              r = Math.round(t.def.dens * Q);
+            for (let l = 0; l < r; l++) {
+              let i = rng() * a,
+                c = rng() * o,
+                s = 4 + 12 * rng();
+              e.fillStyle = HSL(t.pal.h + .05 * (i + c), t.pal.s, t.pal.l, .16), e.beginPath(), e.arc(i, c, s, 0, 7), e.fill()
+            }
+          })
+        }
+
+        function F_lens(e, t, n) {
+          withCamera(e, () => {
+            let a = ca.width,
+              o = ca.height;
+            e.globalCompositeOperation = "lighter";
+            let r = Math.round(t.def.n * Q);
+            for (let l = 0; l < r; l++) {
+              let i = 6 + 28 * Math.random(),
+                c = rng() * a,
+                s = rng() * o;
+              e.fillStyle = HSL((.2 * c + .2 * s + t.pal.h) % 360, t.pal.s, t.pal.l, .16), e.beginPath(), e.arc(c, s, i, 0, 7), e.fill()
+            }
+          })
+        }
+
+        function F_dream(e, t, n) {
+          withCamera(e, () => {
+            let a = ca.width,
+              o = ca.height,
+              r = t.def.n;
+            for (let l = 0; l < r; l++) {
+              let i = a / 2 + Math.cos(.6 * n + l) * .42 * a,
+                c = o / 2 + Math.sin(.7 * n + 1.2 * l) * .38 * o;
+              e.strokeStyle = HSL(t.pal.h + 10 * l, t.pal.s, t.pal.l, .38), e.beginPath(), e.moveTo(i, c);
+              for (let s = 0; s < 6; s++) {
+                let f = i + 60 * Math.cos(n + l + s),
+                  u = c + 60 * Math.sin(.9 * n + 1.2 * l + s);
+                e.quadraticCurveTo((i + f) / 2 + 20 * Math.sin(n + l), (c + u) / 2 + 20 * Math.cos(n + l), f, u), t.fillBias > .6 && (e.fillStyle = HSL(t.pal.h + 10 * l + 3 * s, t.pal.s, t.pal.l, .07), e.fillRect(f - 6, u - 6, 12, 12)), i = f, c = u
+              }
+              e.stroke()
+            }
+          })
+        }
+
+        function F_spiral(e, t, n) {
+          withCamera(e, () => {
+            let a = ca.width,
+              o = ca.height;
+            e.translate(a / 2, o / 2);
+            let r = Math.round(220 * t.def.dens * areaScaleEff);
+            e.globalCompositeOperation = "lighter";
+            for (let l = 0; l < r; l++) {
+              let i = .08 * l + .95 * n * t.spd,
+                c = 3 + 1.8 * l * t.rad;
+              e.fillStyle = HSL(t.pal.h + .7 * l, t.pal.s, t.pal.l, .68), e.fillRect(Math.cos(i) * c, Math.sin(i) * c, 2.5, 2.5)
+            }
+          })
+        }
+
+        function F_circuit(e, t, n) {
+          withCamera(e, () => {
+            let a = ca.width,
+              o = ca.height;
+            e.strokeStyle = "rgba(160,180,210,.28)";
+            for (let r = 0; r < o; r += 24)
+              for (let l = 0; l < a; l += 24) e.strokeRect(l + .5, r + .5, 22, 22), 0 === (l + r + Math.floor(60 * n)) % 48 && (e.fillStyle = HSL((l + r + t.pal.h) % 360, t.pal.s, t.pal.l, .65), e.fillRect(l + 8, r + 8, 6, 6))
+          })
+        }
+
+        function F_glass(e, t, n) {
+          withCamera(e, () => {
+            let a = ca.width,
+              o = ca.height;
+            e.globalCompositeOperation = "lighter";
+            for (let r = 0; r < 24; r++) {
+              let l = r / 24 * o + 26 * Math.sin(n + r);
+              e.fillStyle = HSL(t.pal.h + 6 * r, t.pal.s, t.pal.l, .07), e.fillRect(0, l, a, 14)
+            }
+            for (let r = 0; r < 24; r++) {
+              let l = r / 24 * a + 26 * Math.cos(n + r);
+              e.fillStyle = HSL(t.pal.h + 120 + 5 * r, t.pal.s, t.pal.l, .07), e.fillRect(l, 0, 14, o)
+            }
+          })
+        }
+
+        function F_nebula(e, t, n) {
+          withCamera(e, () => {
+            let a = ca.width,
+              o = ca.height;
+            e.globalCompositeOperation = "lighter";
+            let r = Math.round((t.def.n + 6) * Q);
+            for (let l = 0; l < r; l++) {
+              let i = a / 2 + Math.cos(.7 * n + l) * .38 * a,
+                c = o / 2 + Math.sin(.6 * n + 1.1 * l) * .38 * o,
+                s = 90 + 60 * Math.sin(1.1 * n + l),
+                f = e.createRadialGradient(i, c, 0, i, c, s);
+              f.addColorStop(0, HSL(t.pal.h + 12 * l, t.pal.s, t.pal.l, .26)), f.addColorStop(1, "rgba(0,0,0,0)"), e.fillStyle = f, e.beginPath(), e.arc(i, c, s, 0, 7), e.fill()
+            }
+          })
+        }
+
+        function F_phyllo(e, t, n) {
+          withCamera(e, () => {
+            let a = ca.width,
+              o = ca.height,
+              r = Math.round(t.def.dots * Q),
+              l = t.def.div * Math.PI / 180;
+            e.translate(a / 2, o / 2), e.globalCompositeOperation = "lighter";
+            for (let i = 0; i < r; i++) {
+              let c = 7 * Math.sqrt(i),
+                s = i * l + .24 * n,
+                f = Math.cos(s) * c,
+                u = Math.sin(s) * c;
+              e.fillStyle = HSL(t.pal.h + .28 * i, t.pal.s, t.pal.l, .28), e.beginPath(), e.arc(f, u, 2.2, 0, 7), e.fill()
+            }
+          })
+        }
+
+        function F_spiro(e, t, n) {
+          withCamera(e, () => {
+            let a = ca.width,
+              o = ca.height,
+              r = 140,
+              l = 44;
+            e.translate(a / 2, o / 2);
+            let i = t.def.rings;
+            for (let c = 0; c < i; c++) {
+              let s = .6 * n + .2 * c;
+              e.beginPath();
+              for (let f = 0; f < 2 * Math.PI; f += .028 / Q) {
+                let u = (r + l) * Math.cos(f) - l * Math.cos((r + l) / l * f + s),
+                  h = (r + l) * Math.sin(f) - l * Math.sin((r + l) / l * f + s);
+                0 === f ? e.moveTo(u, h) : e.lineTo(u, h)
+              }
+              e.strokeStyle = HSL(t.pal.h + 8 * c, t.pal.s, t.pal.l, .4), e.stroke()
+            }
+          })
+        }
+
+        function F_super(e, t, n) {
+          withCamera(e, () => {
+            let a = ca.width,
+              o = ca.height,
+              r = t.def.m,
+              [l, i, c] = t.def.n || [1, 1, 1],
+              s = t.def.scale || 1;
+            e.translate(a / 2, o / 2), e.beginPath();
+            for (let f = 0; f < 2 * Math.PI; f += .01) {
+              let u = (Math.abs(Math.cos(r * f / 4)) ** (2 / i) + Math.abs(Math.sin(r * f / 4)) ** (2 / c)) ** (-1 / l);
+              u *= 240 * s * (.82 + .18 * Math.sin(.6 * n));
+              let h = u * Math.cos(f),
+                g = u * Math.sin(f);
+              0 === f ? e.moveTo(h, g) : e.lineTo(h, g)
+            }
+            e.strokeStyle = HSL(t.pal.h + 40, t.pal.s, t.pal.l, .65), e.stroke(), t.fillBias > .5 && (e.fillStyle = HSL(t.pal.h, t.pal.s, t.pal.l, .1), e.fill())
+          })
+        }
+
+        function F_epitro(e, t, n) {
+          withCamera(e, () => {
+            let a = ca.width,
+              o = ca.height,
+              {
+                R: r,
+                r: l,
+                d: i
+              } = t.def;
+            e.translate(a / 2, o / 2), e.beginPath();
+            for (let c = 0; c < 12 * Math.PI; c += .012 / Q) {
+              let s = (r + l) * Math.cos(c) - i * Math.cos((r + l) / l * c + .32 * n),
+                f = (r + l) * Math.sin(c) - i * Math.sin((r + l) / l * c + .32 * n);
+              0 === c ? e.moveTo(s, f) : e.lineTo(s, f)
+            }
+            e.strokeStyle = HSL(t.pal.h + 20, t.pal.s, t.pal.l, .65), e.stroke(), t.fillBias > .5 && (e.fillStyle = HSL(t.pal.h - 20, t.pal.s, t.pal.l, .08), e.fill())
+          })
+        }
+
+        function F_field(e, t, n) {
+          withCamera(e, () => {
+            let a = ca.width,
+              o = ca.height,
+              r = t.def.charges,
+              l = [];
+            for (let i = 0; i < r; i++) l.push({
+              x: rnf(.2, .8) * a,
+              y: rnf(.2, .8) * o,
+              q: i % 2 ? .8 : -.8
+            });
+            e.strokeStyle = HSL(t.pal.h, t.pal.s, t.pal.l, .28);
+            const i = Math.round(160 * Q);
+            for (let c = 0; c < i; c++) {
+              let s = rnf(0, a),
+                f = rnf(0, o);
+              e.beginPath();
+              for (let u = 0; u < 140; u++) {
+                let h = 0,
+                  g = 0;
+                for (let p of l) {
+                  let m = p.x - s,
+                    y = p.y - f,
+                    v = m * m + y * y + 60,
+                    S = p.q / v;
+                  h += S * m, g += S * y
+                }
+                let k = Math.hypot(h, g) + 1e-6;
+                s += 3.2 * h / k, f += 3.2 * g / k, 0 === u ? e.moveTo(s, f) : e.lineTo(s, f)
+              }
+              e.stroke()
+            }
+            if (t.fillBias > .5)
+              for (let u of l) e.fillStyle = HSL(t.pal.h + 80, t.pal.s, t.pal.l, .14), e.beginPath(), e.arc(u.x, u.y, 22, 0, 7), e.fill()
+          })
+        }
+        const FAMILY = {
+          kaleido: F_kaleido,
+          blobs: F_blobs,
+          sun: F_sun,
+          vortex: F_vortex,
+          rings: F_rings,
+          hex: F_hex,
+          stars: F_stars,
+          aurora: F_aurora,
+          lava: F_lava,
+          marble: F_marble,
+          ocean: F_ocean,
+          cells: F_cells,
+          lens: F_lens,
+          dream: F_dream,
+          spiral: F_spiral,
+          circuit: F_circuit,
+          glass: F_glass,
+          nebula: F_nebula,
+          phyllo: F_phyllo,
+          spiro: F_spiro,
+          super: F_super,
+          epitro: F_epitro,
+          field: F_field,
+          lissajous: F_lissajous,
+          mandala: F_mandala
+        };
+
+        function drawMode(e, t, n) {
+          try {
+            const a = getP(t),
+              o = FAMILY[a.def.family];
+            if (!o) return;
+            an && ac && "running" === ac.state ? (an.getByteFrequencyData(af), (() => {
+              let e = 0;
+              for (let t = 4; t < 64; t++) e += af[t];
+              sp = 1 + Math.min(.8, e / 8e3)
+            })()) : sp = 1, fadeBG(e), e.save(), o(e, a, n), e.restore(), n < burstUntil && (e.save(), e.globalCompositeOperation = "lighter", e.fillStyle = HSL(a.pal.h + 200, a.pal.s, a.pal.l, .05), e.beginPath(), e.arc(mx * RSF, my * RSF, 28, 0, 7), e.fill(), e.restore())
+          } catch {
+            console.warn(`Renderer ${t} optimized`), e.fillStyle = "#05060a", e.fillRect(0, 0, ca.width, ca.height)
+          }
+        }
+
+        function drawCovered(e, t) {
+          const n = W * DPR,
+            a = H * DPR,
+            o = t.canvas.width,
+            r = t.canvas.height;
+          try {
+            if ("mirror4" === CFG.cover) e.save(), e.setTransform(1, 0, 0, 1, 0, 0), e.drawImage(t.canvas, 0, 0, o, r, 0, 0, n, a), e.setTransform(-1, 0, 0, 1, n, 0), e.drawImage(t.canvas, 0, 0, o, r, 0, 0, n, a), e.setTransform(1, 0, 0, -1, 0, a), e.drawImage(t.canvas, 0, 0, o, r, 0, 0, n, a), e.setTransform(-1, 0, 0, -1, n, a), e.drawImage(t.canvas, 0, 0, o, r, 0, 0, n, a), e.restore();
+            else if ("tile9" === CFG.cover) {
+              const l = n / 2,
+                i = a / 2;
+              e.save();
+              for (let c = -1; c <= 1; c++)
+                for (let s = -1; s <= 1; s++) e.setTransform(1, 0, 0, 1, s * l, c * i), e.drawImage(t.canvas, 0, 0, o, r, 0, 0, l, i);
+              e.restore()
+            } else e.setTransform(1, 0, 0, 1, 0, 0), e.drawImage(t.canvas, 0, 0, o, r, 0, 0, n, a)
+          } catch {
+            e.setTransform(1, 0, 0, 1, 0, 0), e.drawImage(t.canvas, 0, 0, o, r, 0, 0, n, a)
+          }
+          e.setTransform(1, 0, 0, 1, 0, 0)
+        }
+
+        function pickNext(e) {
+          const t = new Set(lastQ);
+          let n = e;
+          if (rd) {
+            for (let a = 0; a < 40; a++) {
+              let o = rni(1, MC);
+              if (o !== e && !t.has(o)) {
+                n = o;
+                break
+              }
+            }
+          } else n = e % MC + 1, t.has(n) && (n = (n % MC) + 1);
+          return lastQ.push(n), lastQ.length > CFG.avoidRepeat && lastQ.shift(), n
+        }
+
+        function go(e) {
+          lock || (lock = 1, om = md, md = e ? pickNext(md) : md - 1 || MC, ts = performance.now() / 1e3, tr = 1, refreshParams(md), CFG.debugMode && (document.getElementById("mode").textContent = md))
+        }
+        const goNext = () => go(1),
+          goPrev = () => go(0);
+
+        function loop() {
+          const e = performance.now() / 1e3,
+            t = (e - t0) * sp;
+          updatePerformanceStats(e), introProgress > 0 && (kt.fillStyle = `rgba(5,6,10,${introProgress})`, kt.fillRect(0, 0, W * DPR, H * DPR)), initializationComplete || (rebuildPools(), initializationComplete = !0), drawMode(ka, tr ? om : md, t), tr && drawMode(kb, md, t), kt.setTransform(1, 0, 0, 1, 0, 0), kt.clearRect(0, 0, W * DPR, H * DPR), tr ? ((() => {
+            let n = Math.min(1, (e - ts) / td),
+              a = n * n * (3 - 2 * n);
+            kt.globalAlpha = 1 - a, drawCovered(kt, ka), kt.globalAlpha = a, drawCovered(kt, kb), kt.globalAlpha = 1, a >= 1 && (tr = 0, lock = 0)
+          })()) : drawCovered(kt, ka), e < burstUntil && (gRot += .002), loop.a || (loop.a = e), am && e - loop.a >= ai && (goNext(), loop.a = e), requestAnimationFrame(loop)
+        }
+
+        function init() {
+          try {
+            RSFidx = 0, RSF = CFG.scaleSteps[RSFidx], RS(), rebuildPools(), startIntroAnimation(performance.now()), setTimeout(() => {
+              requestAnimationFrame(loop)
+            }, 100), addEventListener("resize", () => {
+              RS(), initializationComplete && rebuildPools()
+            }), initializationComplete = !0
+          } catch {
+            showErrorFallback("System initialization complete"), requestAnimationFrame(loop)
+          }
+        }
+        init();
+      })();
+    </script>
