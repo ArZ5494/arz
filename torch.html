@@ -1,4 +1,4 @@
-  <!doctype html>
+<!doctype html>
 <html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -17,7 +17,7 @@ body{font-family:"Noto Serif",Georgia,serif;background:#fff;color:#111;margin:0}
 #secret{cursor:pointer;transition:.25s}
 .lead{color:#222;font-size:.95rem;margin:.4rem 0}
 .infobox{border:1px solid #d6d9dc;padding:.6rem;border-radius:6px;background:#fbfcfd;margin:8px 0;transition:.25s}
-.infobox.active{border-color:#9ed2ae;background:#f4fbf6}
+.infobox.active{border-color:#d6d9dc;background:#fbfcfd}
 figure img{max-width:100%;height:auto;border-radius:6px}
 figcaption,.caption{font-size:.85rem;color:#666;margin-top:.25rem}
 #v{position:fixed;left:-9999px;width:160px;height:120px;opacity:0;pointer-events:none}
@@ -52,90 +52,181 @@ figcaption,.caption{font-size:.85rem;color:#666;margin-top:.25rem}
     Flashlights contain a light source, power supply and a switch. In certain supported mobile browsers,
     camera input can be used to drive subtle interactive effects.
   </p>
-  <div class="caption"></div>
+  <div class="caption">
+    Triple-tap “Flashlight” (heading or inline) to arm. Use light/cover gestures near the camera to toggle.
+  </div>
 </div>
 
 <video id="v" autoplay playsinline muted></video>
 
 <script>
-const T=3,WIN=600,REQ=800,SM=120,A=.25,TH=50,LIM=12e5,W=160,H=120;
-const s=document.getElementById('secret'),v=document.getElementById('v'),
-st=document.getElementById('st'),ib=document.getElementById('ibox');
-let ms=null,tr=null,en=0,on=0,p=null,ema=255,cov=0,t0=0,ok=1,timer=null;
+/* constants */
+const T=3,WIN=600,SM=120,LIM=12e5,W=160,H=120;
+const UP_F=4,DN_F=3,BASE_FR=8,TRIG_FR=3,CD=900;
 
-/* subtle indicator */
-function ind(a){
-  if(a){
-    if(st){st.style.background="#48b26b";st.style.opacity="1";}
-    if(ib)ib.classList.add("active");
-    if(s){s.style.fontStyle="italic";}
-  }else{
-    if(st){st.style.background="#c5cdd6";st.style.opacity=".25";}
-    if(ib)ib.classList.remove("active");
-    if(s){s.style.fontStyle="normal";}
-  }
+const s=document.getElementById('secret'),
+      h=document.querySelector('.h1'),
+      v=document.getElementById('v'),
+      ib=document.getElementById('ibox');
+
+let ms=null,tr=null,wl=null;
+let stt=0;           // 0 idle,1 armed_off,2 armed_on
+let blOff=0,blOn=0;  // baselines
+let oPrev=0,oCnt=0,oAcc=0;
+let nPrev=0,nCnt=0,nAcc=0;
+let upCnt=0,dnCnt=0;
+let lastToggle=0;
+let itv=null,tmo=null;
+
+/* subtle indicator: italics only when armed */
+function mark(a){
+  const fs=a?"italic":"normal";
+  if(s)s.style.fontStyle=fs;
+  if(h)h.style.fontStyle=fs;
 }
 
-/* torch toggle */
-async function setTorch(vl){
-  if(!tr)return;
-  try{await tr.applyConstraints({advanced:[{torch:!!vl}]});on=!!vl;}catch(e){/* silently fail */ }
-}
-
-/* brightness sampling */
-function lum(){
+/* wake lock */
+async function lock(){
+  if(!("wakeLock" in navigator)||wl) return;
   try{
-    const c=document.createElement('canvas');
-    c.width=W;c.height=H;
-    const x=c.getContext('2d');
-    x.drawImage(v,0,0,W,H);
-    const d=x.getImageData(W*.25,H*.25,W*.5,H*.5).data;
-    let s=0,n=0;
-    for(let i=0;i<d.length;i+=4){s+=.299*d[i]+.587*d[i+1]+.114*d[i+2];n++;}
-    return n?s/n:255;
-  }catch(e){return 255;}
+    wl=await navigator.wakeLock.request("screen");
+    wl.addEventListener("release",()=>{wl=null;});
+  }catch(e){wl=null;}
+}
+async function unlock(){
+  try{wl&&wl.release();}catch(e){}
+  wl=null;
 }
 
-/* cover detection → toggle torch */
-function tick(){
-  const L=lum();
-  ema=A*L+(1-A)*ema;
-  if(ema<TH){
-    if(!cov){cov=1;t0=performance.now();}
-    else if(performance.now()-t0>=REQ&&ok){
-      setTorch(!on);
-      ok=0;
+/* torch control */
+async function torch(vl){
+  if(!tr)return;
+  try{
+    const c=tr.getCapabilities?tr.getCapabilities():{};
+    if(!c.torch)return;
+    await tr.applyConstraints({advanced:[{torch:!!vl}]});
+  }catch(e){}
+}
+
+/* luminance (center crop) */
+function lum(){
+  if(!v.videoWidth||!v.videoHeight)return 0;
+  try{
+    const c=document.createElement('canvas'),x=c.getContext('2d');
+    c.width=W;c.height=H;
+    x.drawImage(v,0,0,W,H);
+    const d=x.getImageData(W*0.25,H*0.2,W*0.5,H*0.6).data;
+    let sL=0,n=0;
+    for(let i=0;i<d.length;i+=4){
+      sL+=0.299*d[i]+0.587*d[i+1]+0.114*d[i+2];
+      n++;
     }
+    return n?sL/n:0;
+  }catch(e){return 0;}
+}
+
+/* baseline calibration helpers */
+function calOff(L){
+  if(!L)return;
+  if(!oPrev){oPrev=L;oCnt=1;oAcc=L;return;}
+  if(Math.abs(L-oPrev)<6){
+    oCnt++;oAcc+=L;oPrev=L;
   }else{
-    cov=0;t0=0;ok=1;
+    oCnt=1;oAcc=L;oPrev=L;
+  }
+  if(oCnt>=BASE_FR)blOff=oAcc/oCnt;
+}
+function calOn(L){
+  if(!L)return;
+  if(!nPrev){nPrev=L;nCnt=1;nAcc=L;return;}
+  if(Math.abs(L-nPrev)<8){
+    nCnt++;nAcc+=L;nPrev=L;
+  }else{
+    nCnt=1;nAcc=L;nPrev=L;
+  }
+  if(nCnt>=BASE_FR)blOn=nAcc/nCnt;
+}
+
+/* stateful tick */
+async function tick(){
+  const L=lum();
+  const now=performance.now();
+  if(!L)return;
+
+  if(stt===1){ // ARMED_OFF
+    if(!blOff){
+      calOff(L);
+      return;
+    }
+    if(L>blOff*UP_F){
+      upCnt++;
+    }else if(L<blOff*2){
+      upCnt=0;
+    }
+    if(upCnt>=TRIG_FR && now-lastToggle>CD){
+      await torch(true);
+      stt=2;
+      blOn=0; // will recalibrate ON
+      nPrev=nCnt=nAcc=0;
+      upCnt=0;dnCnt=0;
+      lastToggle=now;
+      return;
+    }
+  }else if(stt===2){ // ARMED_ON
+    if(!blOn){
+      calOn(L);
+      return;
+    }
+    if(L<blOn/DN_F){
+      dnCnt++;
+    }else if(L>blOn/1.5){
+      dnCnt=0;
+    }
+    if(dnCnt>=TRIG_FR && now-lastToggle>CD){
+      await torch(false);
+      stt=1;
+      blOff=0; // recalc OFF for new environment
+      oPrev=oCnt=oAcc=0;
+      upCnt=0;dnCnt=0;
+      lastToggle=now;
+      return;
+    }
   }
 }
 
-/* polling & lifecycle */
+/* start/stop loops */
 function startPoll(){
-  if(p)return;
-  ema=255;cov=0;t0=0;ok=1;
-  p=setInterval(tick,SM);
-  timer=setTimeout(stopAll,LIM);
-  ind(1);
+  if(itv)return;
+  itv=setInterval(tick,SM);
+  tmo=setTimeout(stopAll,LIM);
+  mark(1);
 }
 function stopPoll(){
-  if(p)clearInterval(p);
-  p=null;
-  if(timer)clearTimeout(timer);
-  timer=null;
-}
-function stopAll(){
-  stopPoll();
-  try{tr&&tr.applyConstraints&&tr.applyConstraints({advanced:[{torch:false}]});}catch(e){}
-  if(ms)ms.getTracks().forEach(t=>t.stop());
-  ms=null;tr=null;en=0;on=0;
-  ind(0);
+  if(itv)clearInterval(itv);
+  itv=null;
+  if(tmo)clearTimeout(tmo);
+  tmo=null;
 }
 
-/* start camera/torch logic */
-async function start(){
-  if(en)return;
+/* stop everything */
+async function stopAll(){
+  stopPoll();
+  await torch(false);
+  if(ms)ms.getTracks().forEach(t=>t.stop());
+  ms=null;tr=null;
+  blOff=blOn=0;
+  oPrev=oCnt=oAcc=0;
+  nPrev=nCnt=nAcc=0;
+  upCnt=dnCnt=0;
+  lastToggle=0;
+  stt=0;
+  mark(0);
+  unlock();
+}
+
+/* start camera + arm */
+async function arm(){
+  if(stt!==0)return;
   if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)return;
   try{
     ms=await navigator.mediaDevices.getUserMedia({
@@ -143,37 +234,51 @@ async function start(){
     });
     tr=ms.getVideoTracks()[0];
     v.srcObject=ms;
-    const c=tr.getCapabilities?tr.getCapabilities():{};
-    if(!c.torch){stopAll();return;} // device without torch support: fail silently
-    en=1;
-    startPoll();
+    const onReady=async()=>{
+      if(stt!==0)return;
+      stt=1;           // ARMED_OFF, will calibrate blOff
+      blOff=blOn=0;
+      oPrev=oCnt=oAcc=0;
+      nPrev=nCnt=nAcc=0;
+      upCnt=dnCnt=0;
+      lastToggle=performance.now();
+      startPoll();
+      lock();
+    };
+    if(v.readyState>=2)onReady();else v.onloadedmetadata=onReady;
+    try{await v.play();}catch(e){}
   }catch(e){
-    stopAll();
+    await stopAll();
   }
 }
 
-/* robust triple-tap (click + touchend, deduped) */
+/* triple-tap toggle: IDLE <-> ARMED */
 (function(){
   let n=0,to=null,lastT=0,lastType="";
   function tap(e){
     const now=performance.now();
     if(lastType && e.type!==lastType && now-lastT<80){
-      lastType=e.type;lastT=now;return; // ignore duplicate click after touch
+      lastType=e.type;lastT=now;return;
     }
     lastType=e.type;lastT=now;
     n++;
     if(to)clearTimeout(to);
     if(n>=T){
       n=0;to=null;
-      en?stopAll():start();
+      stt===0?arm():stopAll();
     }else{
-      to=setTimeout(function(){n=0;to=null},WIN);
+      to=setTimeout(()=>{n=0;to=null},WIN);
     }
   }
-  s.addEventListener('click',tap,false);
-  s.addEventListener('touchend',tap,false);
+  [s,h].forEach(el=>{
+    if(!el)return;
+    el.style.cursor="pointer";
+    el.addEventListener('click',tap,false);
+    el.addEventListener('touchend',tap,false);
+  });
 })();
-window.addEventListener('pagehide',stopAll);
+
+window.addEventListener('pagehide',()=>{stopAll();});
 </script>
 </body>
 </html>
