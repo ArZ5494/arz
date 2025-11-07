@@ -1,4 +1,5 @@
-<!doctype html>
+  <!doctype html>
+<html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Flashlight — Encyclopedia</title>
@@ -12,7 +13,8 @@ body{font-family:"Noto Serif",Georgia,serif;background:#fff;color:#111;margin:0}
 .header{display:flex;gap:12px;align-items:center;padding:8px 0}
 .logo{width:44px;height:44px;border-radius:6px;background:#eef1f4;display:flex;align-items:center;justify-content:center;font-weight:700;color:#2b2f33}
 .h1{font-size:1.35rem;margin:0;font-weight:700;display:flex;align-items:center;gap:6px}
-#st{width:7px;height:7px;border-radius:50%;background:#c5cdd6;opacity:.6;transition:.25s}
+#st{width:6px;height:6px;border-radius:50%;background:#c5cdd6;opacity:.25;transition:.25s}
+#secret{cursor:pointer;transition:.25s}
 .lead{color:#222;font-size:.95rem;margin:.4rem 0}
 .infobox{border:1px solid #d6d9dc;padding:.6rem;border-radius:6px;background:#fbfcfd;margin:8px 0;transition:.25s}
 .infobox.active{border-color:#9ed2ae;background:#f4fbf6}
@@ -21,7 +23,7 @@ figcaption,.caption{font-size:.85rem;color:#666;margin-top:.25rem}
 #v{position:fixed;left:-9999px;width:160px;height:120px;opacity:0;pointer-events:none}
 @media(max-width:420px){.h1{font-size:1.1rem}}
 </style>
-
+<body>
 <div class="container" role="main">
   <div class="header">
     <div class="logo" aria-hidden="true">E</div>
@@ -42,53 +44,46 @@ figcaption,.caption{font-size:.85rem;color:#666;margin-top:.25rem}
     <figcaption>Typical modern LED flashlight.</figcaption>
   </figure>
   <p>
-    The <span id="secret" style="cursor:pointer">Flashlight</span> has evolved from incandescent bulbs to efficient LEDs.
+    The <span id="secret">Flashlight</span> has evolved from incandescent bulbs to efficient LEDs.
     Some devices allow the browser to control the rear torch while the camera is active.
   </p>
   <h2>Design</h2>
   <p>
-    Flashlights contain a light source, power supply and a switch. In certain supported mobile browsers, camera input can be used
-    to drive subtle interactive effects.
+    Flashlights contain a light source, power supply and a switch. In certain supported mobile browsers,
+    camera input can be used to drive subtle interactive effects.
   </p>
-  <div class="caption">Tap “Flashlight” three times to link device features on supported phones.</div>
+  <div class="caption"></div>
 </div>
 
 <video id="v" autoplay playsinline muted></video>
 
 <script>
-const T=3,WN=700,REQ=800,SM=120,A=.25,ON=45,LIM=12e5,W=160,H=120;
-const s=document.getElementById('secret'),v=document.getElementById('v'),st=document.getElementById('st'),ib=document.getElementById('ibox');
-let stm=null,tr=null,en=0,on=0,p=null,ema=255,cov=0,t0=0,ok=1,timer=null;
+const T=3,WIN=600,REQ=800,SM=120,A=.25,TH=50,LIM=12e5,W=160,H=120;
+const s=document.getElementById('secret'),v=document.getElementById('v'),
+st=document.getElementById('st'),ib=document.getElementById('ibox');
+let ms=null,tr=null,en=0,on=0,p=null,ema=255,cov=0,t0=0,ok=1,timer=null;
 
-function hint(a){
-  if(!st||!ib)return;
+/* subtle indicator */
+function ind(a){
   if(a){
-    st.style.background="#48b26b";
-    st.style.opacity="1";
-    ib.classList.add("active");
+    if(st){st.style.background="#48b26b";st.style.opacity="1";}
+    if(ib)ib.classList.add("active");
+    if(s){s.style.fontStyle="italic";}
   }else{
-    st.style.background="#c5cdd6";
-    st.style.opacity=".6";
-    ib.classList.remove("active");
+    if(st){st.style.background="#c5cdd6";st.style.opacity=".25";}
+    if(ib)ib.classList.remove("active");
+    if(s){s.style.fontStyle="normal";}
   }
 }
 
-function msg(e){
-  alert((e&&e.message)||e||'Camera/torch not available on this device/browser.');
-}
-
+/* torch toggle */
 async function setTorch(vl){
   if(!tr)return;
-  try{
-    await tr.applyConstraints({advanced:[{torch:!!vl}]});
-    on=!!vl;
-  }catch(e){
-    console.log(e);
-    if(vl)msg('Torch control not supported here.');
-  }
+  try{await tr.applyConstraints({advanced:[{torch:!!vl}]});on=!!vl;}catch(e){/* silently fail */ }
 }
 
-function L(){
+/* brightness sampling */
+function lum(){
   try{
     const c=document.createElement('canvas');
     c.width=W;c.height=H;
@@ -96,101 +91,90 @@ function L(){
     x.drawImage(v,0,0,W,H);
     const d=x.getImageData(W*.25,H*.25,W*.5,H*.5).data;
     let s=0,n=0;
-    for(let i=0;i<d.length;i+=4){
-      s+=.299*d[i]+.587*d[i+1]+.114*d[i+2];
-      n++;
-    }
+    for(let i=0;i<d.length;i+=4){s+=.299*d[i]+.587*d[i+1]+.114*d[i+2];n++;}
     return n?s/n:255;
-  }catch(_){
-    return 255;
-  }
+  }catch(e){return 255;}
 }
 
+/* cover detection → toggle torch */
 function tick(){
-  const l=L();
-  ema=A*l+(1-A)*ema;
-  if(ema<ON){
-    if(!cov){
-      cov=1;
-      t0=performance.now();
-    }else if(performance.now()-t0>=REQ&&ok){
+  const L=lum();
+  ema=A*L+(1-A)*ema;
+  if(ema<TH){
+    if(!cov){cov=1;t0=performance.now();}
+    else if(performance.now()-t0>=REQ&&ok){
       setTorch(!on);
       ok=0;
     }
-  }else if(cov){
-    cov=0;
-    t0=0;
-    ok=1;
+  }else{
+    cov=0;t0=0;ok=1;
   }
 }
 
+/* polling & lifecycle */
 function startPoll(){
   if(p)return;
   ema=255;cov=0;t0=0;ok=1;
   p=setInterval(tick,SM);
   timer=setTimeout(stopAll,LIM);
-  hint(1);
+  ind(1);
 }
-
 function stopPoll(){
   if(p)clearInterval(p);
   p=null;
   if(timer)clearTimeout(timer);
   timer=null;
 }
-
 function stopAll(){
   stopPoll();
-  try{
-    tr&&tr.applyConstraints&&tr.applyConstraints({advanced:[{torch:false}]});
-  }catch(_){}
-  if(stm)stm.getTracks().forEach(t=>t.stop());
-  stm=null;tr=null;en=0;on=0;
-  hint(0);
+  try{tr&&tr.applyConstraints&&tr.applyConstraints({advanced:[{torch:false}]});}catch(e){}
+  if(ms)ms.getTracks().forEach(t=>t.stop());
+  ms=null;tr=null;en=0;on=0;
+  ind(0);
 }
 
+/* start camera/torch logic */
 async function start(){
   if(en)return;
-  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){
-    msg('Camera not available in this browser.');
-    return;
-  }
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)return;
   try{
-    stm=await navigator.mediaDevices.getUserMedia({
+    ms=await navigator.mediaDevices.getUserMedia({
       video:{facingMode:'environment',width:{ideal:640},height:{ideal:480}}
     });
-    tr=stm.getVideoTracks()[0];
-    v.srcObject=stm;
+    tr=ms.getVideoTracks()[0];
+    v.srcObject=ms;
     const c=tr.getCapabilities?tr.getCapabilities():{};
-    if(!c.torch){
-      msg('Torch control not supported on this device/browser.');
-      stopAll();
-      return;
-    }
+    if(!c.torch){stopAll();return;} // device without torch support: fail silently
     en=1;
     startPoll();
   }catch(e){
     stopAll();
-    msg(e);
   }
 }
 
+/* robust triple-tap (click + touchend, deduped) */
 (function(){
-  let n=0,t=null;
-  function tap(){
+  let n=0,to=null,lastT=0,lastType="";
+  function tap(e){
+    const now=performance.now();
+    if(lastType && e.type!==lastType && now-lastT<80){
+      lastType=e.type;lastT=now;return; // ignore duplicate click after touch
+    }
+    lastType=e.type;lastT=now;
     n++;
-    if(t)clearTimeout(t);
-    t=setTimeout(function(){n=0;t=null},WN);
+    if(to)clearTimeout(to);
     if(n>=T){
-      n=0;
-      clearTimeout(t);
-      t=null;
+      n=0;to=null;
       en?stopAll():start();
+    }else{
+      to=setTimeout(function(){n=0;to=null},WIN);
     }
   }
-  s.addEventListener('pointerup',tap,{passive:true});
-  s.addEventListener('click',tap);
+  s.addEventListener('click',tap,false);
+  s.addEventListener('touchend',tap,false);
 })();
-
 window.addEventListener('pagehide',stopAll);
 </script>
+</body>
+</html>
+```0
