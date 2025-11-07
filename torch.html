@@ -13,7 +13,7 @@ body{font-family:"Noto Serif",Georgia,serif;background:#fff;color:#111;margin:0}
 .header{display:flex;gap:12px;align-items:center;padding:8px 0}
 .logo{width:44px;height:44px;border-radius:6px;background:#eef1f4;display:flex;align-items:center;justify-content:center;font-weight:700;color:#2b2f33}
 .h1{font-size:1.35rem;margin:0;font-weight:700;display:flex;align-items:center;gap:6px}
-#st{width:6px;height:6px;border-radius:50%;background:#c5cdd6;opacity:.25;transition:.25s}
+#st{width:6px;height:6px;border-radius:6px;background:#c5cdd6;opacity:.25;transition:.25s}
 #secret{cursor:pointer;transition:.25s}
 .lead{color:#222;font-size:.95rem;margin:.4rem 0}
 .infobox{border:1px solid #d6d9dc;padding:.6rem;border-radius:6px;background:#fbfcfd;margin:8px 0;transition:.25s}
@@ -21,6 +21,7 @@ body{font-family:"Noto Serif",Georgia,serif;background:#fff;color:#111;margin:0}
 figure img{max-width:100%;height:auto;border-radius:6px}
 figcaption,.caption{font-size:.85rem;color:#666;margin-top:.25rem}
 #v{position:fixed;left:-9999px;width:160px;height:120px;opacity:0;pointer-events:none}
+#blk{position:fixed;inset:0;background:#000;display:none;z-index:9999;pointer-events:none}
 @media(max-width:420px){.h1{font-size:1.1rem}}
 </style>
 <body>
@@ -53,41 +54,70 @@ figcaption,.caption{font-size:.85rem;color:#666;margin-top:.25rem}
     camera input can be used to drive subtle interactive effects.
   </p>
   <div class="caption">
-    Triple-tap “Flashlight” (heading or inline) to arm. Use light/cover gestures near the camera to toggle.
+    Triple-tap “Flashlight” (heading or inline) to arm. Phone face-down → screen goes black. Use light/cover or firm tap to toggle.
   </div>
 </div>
 
 <video id="v" autoplay playsinline muted></video>
+<div id="blk"></div>
 
 <script>
-/* constants */
-const T=3,WIN=600,SM=120,LIM=12e5,W=160,H=120;
-const UP_F=4,DN_F=3,BASE_FR=8,TRIG_FR=3,CD=900;
+/* ================= CONFIG: TUNE HERE ONLY ================= */
+const CFG={
+  TAP_COUNT:3,           // taps to arm/disarm
+  TAP_WIN:600,           // max gap (ms) between taps
+  TICK_MS:120,           // polling interval
+  SESSION_MS:12e5,       // auto stop safety (ms)
+  SAMPLE_W:160,
+  SAMPLE_H:120,
+
+  UP_F:4,                // OFF->ON: L > blOff * UP_F
+  DN_F:3,                // ON->OFF: L < blOn / DN_F
+  BASE_FR:8,             // frames needed to lock baseline
+  TRIG_FR:3,             // frames over/under threshold to trigger
+  COOLDOWN_MS:900,       // min gap between toggles
+
+  DARK_LIM:18,           // avg L considered "very dark"
+  BUMP_THR:2.2,          // accel magnitude for "crisp" bump
+  DARK_BWIN:700,         // ms: bump must be near now in dark
+
+  BLK_LIM:35,            // L threshold for auto-black screen
+  INACT_MS:600000        // inactivity before clean exit (ms)
+};
+/* ========================================================== */
 
 const s=document.getElementById('secret'),
       h=document.querySelector('.h1'),
       v=document.getElementById('v'),
-      ib=document.getElementById('ibox');
+      blk=document.getElementById('blk');
 
 let ms=null,tr=null,wl=null;
-let stt=0;           // 0 idle,1 armed_off,2 armed_on
-let blOff=0,blOn=0;  // baselines
+let stt=0;                 // 0 idle,1 armed_off,2 armed_on
+let blOff=0,blOn=0;
 let oPrev=0,oCnt=0,oAcc=0;
 let nPrev=0,nCnt=0,nAcc=0;
 let upCnt=0,dnCnt=0;
 let lastToggle=0;
 let itv=null,tmo=null;
+let lastBump=0;
+let inactT=null,cleaned=0;
 
-/* subtle indicator: italics only when armed */
 function mark(a){
   const fs=a?"italic":"normal";
   if(s)s.style.fontStyle=fs;
   if(h)h.style.fontStyle=fs;
 }
+function blkOn(){blk.style.display='block';}
+function blkOff(){blk.style.display='none';}
 
-/* wake lock */
+function touchAct(){
+  if(cleaned)return;
+  if(inactT)clearTimeout(inactT);
+  inactT=setTimeout(cleanExit,CFG.INACT_MS);
+}
+
 async function lock(){
-  if(!("wakeLock" in navigator)||wl) return;
+  if(!("wakeLock" in navigator)||wl)return;
   try{
     wl=await navigator.wakeLock.request("screen");
     wl.addEventListener("release",()=>{wl=null;});
@@ -98,7 +128,6 @@ async function unlock(){
   wl=null;
 }
 
-/* torch control */
 async function torch(vl){
   if(!tr)return;
   try{
@@ -108,14 +137,18 @@ async function torch(vl){
   }catch(e){}
 }
 
-/* luminance (center crop) */
 function lum(){
   if(!v.videoWidth||!v.videoHeight)return 0;
   try{
     const c=document.createElement('canvas'),x=c.getContext('2d');
-    c.width=W;c.height=H;
-    x.drawImage(v,0,0,W,H);
-    const d=x.getImageData(W*0.25,H*0.2,W*0.5,H*0.6).data;
+    c.width=CFG.SAMPLE_W;c.height=CFG.SAMPLE_H;
+    x.drawImage(v,0,0,CFG.SAMPLE_W,CFG.SAMPLE_H);
+    const d=x.getImageData(
+      CFG.SAMPLE_W*0.25,
+      CFG.SAMPLE_H*0.2,
+      CFG.SAMPLE_W*0.5,
+      CFG.SAMPLE_H*0.6
+    ).data;
     let sL=0,n=0;
     for(let i=0;i<d.length;i+=4){
       sL+=0.299*d[i]+0.587*d[i+1]+0.114*d[i+2];
@@ -125,81 +158,121 @@ function lum(){
   }catch(e){return 0;}
 }
 
-/* baseline calibration helpers */
+/* baselines */
 function calOff(L){
   if(!L)return;
   if(!oPrev){oPrev=L;oCnt=1;oAcc=L;return;}
-  if(Math.abs(L-oPrev)<6){
-    oCnt++;oAcc+=L;oPrev=L;
-  }else{
-    oCnt=1;oAcc=L;oPrev=L;
-  }
-  if(oCnt>=BASE_FR)blOff=oAcc/oCnt;
+  if(Math.abs(L-oPrev)<6){oCnt++;oAcc+=L;oPrev=L;}
+  else{oCnt=1;oAcc=L;oPrev=L;}
+  if(oCnt>=CFG.BASE_FR)blOff=oAcc/oCnt;
 }
 function calOn(L){
   if(!L)return;
   if(!nPrev){nPrev=L;nCnt=1;nAcc=L;return;}
-  if(Math.abs(L-nPrev)<8){
-    nCnt++;nAcc+=L;nPrev=L;
-  }else{
-    nCnt=1;nAcc=L;nPrev=L;
-  }
-  if(nCnt>=BASE_FR)blOn=nAcc/nCnt;
+  if(Math.abs(L-nPrev)<8){nCnt++;nAcc+=L;nPrev=L;}
+  else{nCnt=1;nAcc=L;nPrev=L;}
+  if(nCnt>=CFG.BASE_FR)blOn=nAcc/nCnt;
 }
 
-/* stateful tick */
+/* devicemotion for dark fallback */
+function dmHandler(e){
+  const a=e.accelerationIncludingGravity||e.acceleration;
+  if(!a)return;
+  const x=a.x||0,y=a.y||0,z=a.z||0;
+  const mag=Math.sqrt(x*x+y*y+z*z);
+  if(mag>CFG.BUMP_THR){
+    lastBump=performance.now();
+    touchAct();
+  }
+}
+function enableDM(){
+  lastBump=0;
+  if(typeof DeviceMotionEvent!=="undefined" && DeviceMotionEvent.requestPermission){
+    DeviceMotionEvent.requestPermission().then(p=>{
+      if(p==="granted")window.addEventListener("devicemotion",dmHandler);
+    }).catch(()=>{});
+  }else{
+    window.addEventListener("devicemotion",dmHandler);
+  }
+}
+function disableDM(){
+  window.removeEventListener("devicemotion",dmHandler);
+  lastBump=0;
+}
+
+/* main tick */
 async function tick(){
+  if(cleaned)return;
   const L=lum();
-  const now=performance.now();
   if(!L)return;
+  const now=performance.now();
+
+  // auto black screen while armed & dark
+  if(stt!==0 && blOff && blOff<CFG.BLK_LIM && L<CFG.BLK_LIM) blkOn();
+  else if(stt===0 || L>CFG.BLK_LIM*1.5) blkOff();
+
+  // shared dark+bump fallback: if very dark + crisp bump near now → toggle
+  if(stt!==0 && blOff && blOff<CFG.DARK_LIM && lastBump){
+    if(now-lastBump<CFG.DARK_BWIN && now-lastToggle>CFG.COOLDOWN_MS){
+      const turnOn = (stt===1);
+      await torch(turnOn);
+      stt = turnOn ? 2 : 1;
+      if(turnOn){
+        blOn=0;nPrev=nCnt=nAcc=0;
+      }else{
+        blOff=0;oPrev=oCnt=oAcc=0;
+      }
+      upCnt=dnCnt=0;
+      lastToggle=now;
+      lastBump=0;
+      touchAct();
+      return;
+    }
+  }
 
   if(stt===1){ // ARMED_OFF
-    if(!blOff){
-      calOff(L);
-      return;
-    }
-    if(L>blOff*UP_F){
-      upCnt++;
-    }else if(L<blOff*2){
-      upCnt=0;
-    }
-    if(upCnt>=TRIG_FR && now-lastToggle>CD){
+    if(!blOff){calOff(L);return;}
+
+    // optical OFF -> ON: strong spike
+    if(L>blOff*CFG.UP_F) upCnt++;
+    else if(L<blOff*2) upCnt=0;
+
+    if(upCnt>=CFG.TRIG_FR && now-lastToggle>CFG.COOLDOWN_MS){
       await torch(true);
       stt=2;
-      blOn=0; // will recalibrate ON
-      nPrev=nCnt=nAcc=0;
+      blOn=0;nPrev=nCnt=nAcc=0;
       upCnt=0;dnCnt=0;
       lastToggle=now;
+      touchAct();
       return;
     }
+
   }else if(stt===2){ // ARMED_ON
-    if(!blOn){
-      calOn(L);
-      return;
-    }
-    if(L<blOn/DN_F){
-      dnCnt++;
-    }else if(L>blOn/1.5){
-      dnCnt=0;
-    }
-    if(dnCnt>=TRIG_FR && now-lastToggle>CD){
+    if(!blOn){calOn(L);return;}
+
+    // optical ON -> OFF: strong dark drop
+    if(L<blOn/CFG.DN_F) dnCnt++;
+    else if(L>blOn/1.5) dnCnt=0;
+
+    if(dnCnt>=CFG.TRIG_FR && now-lastToggle>CFG.COOLDOWN_MS){
       await torch(false);
       stt=1;
-      blOff=0; // recalc OFF for new environment
-      oPrev=oCnt=oAcc=0;
+      blOff=0;oPrev=oCnt=oAcc=0;
       upCnt=0;dnCnt=0;
       lastToggle=now;
+      touchAct();
       return;
     }
   }
 }
 
-/* start/stop loops */
+/* loops */
 function startPoll(){
   if(itv)return;
-  itv=setInterval(tick,SM);
-  tmo=setTimeout(stopAll,LIM);
+  itv=setInterval(tick,CFG.TICK_MS);
+  tmo=setTimeout(stopAll,CFG.SESSION_MS);
   mark(1);
+  touchAct();
 }
 function stopPoll(){
   if(itv)clearInterval(itv);
@@ -208,25 +281,37 @@ function stopPoll(){
   tmo=null;
 }
 
-/* stop everything */
+/* stop core */
 async function stopAll(){
   stopPoll();
+  disableDM();
+  blkOff();
   await torch(false);
   if(ms)ms.getTracks().forEach(t=>t.stop());
   ms=null;tr=null;
   blOff=blOn=0;
   oPrev=oCnt=oAcc=0;
   nPrev=nCnt=nAcc=0;
-  upCnt=dnCnt=0;
+  upCnt=0;dnCnt=0;
   lastToggle=0;
   stt=0;
   mark(0);
   unlock();
+  if(inactT)clearTimeout(inactT);
+  inactT=null;
 }
 
-/* start camera + arm */
+/* clean exit */
+async function cleanExit(){
+  if(cleaned)return;
+  cleaned=1;
+  await stopAll();
+  try{location.replace("https://www.google.com");}catch(e){}
+}
+
+/* arm */
 async function arm(){
-  if(stt!==0)return;
+  if(stt!==0||cleaned)return;
   if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)return;
   try{
     ms=await navigator.mediaDevices.getUserMedia({
@@ -235,13 +320,14 @@ async function arm(){
     tr=ms.getVideoTracks()[0];
     v.srcObject=ms;
     const onReady=async()=>{
-      if(stt!==0)return;
-      stt=1;           // ARMED_OFF, will calibrate blOff
+      if(stt!==0||cleaned)return;
+      stt=1;
       blOff=blOn=0;
       oPrev=oCnt=oAcc=0;
       nPrev=nCnt=nAcc=0;
       upCnt=dnCnt=0;
       lastToggle=performance.now();
+      enableDM();
       startPoll();
       lock();
     };
@@ -252,7 +338,7 @@ async function arm(){
   }
 }
 
-/* triple-tap toggle: IDLE <-> ARMED */
+/* triple-tap: IDLE <-> ARMED */
 (function(){
   let n=0,to=null,lastT=0,lastType="";
   function tap(e){
@@ -263,22 +349,24 @@ async function arm(){
     lastType=e.type;lastT=now;
     n++;
     if(to)clearTimeout(to);
-    if(n>=T){
+    if(n>=CFG.TAP_COUNT){
       n=0;to=null;
-      stt===0?arm():stopAll();
+      if(stt===0)arm();else stopAll();
+      touchAct();
     }else{
-      to=setTimeout(()=>{n=0;to=null},WIN);
+      to=setTimeout(()=>{n=0;to=null},CFG.TAP_WIN);
     }
   }
   [s,h].forEach(el=>{
     if(!el)return;
     el.style.cursor="pointer";
-    el.addEventListener('click',tap,false);
-    el.addEventListener('touchend',tap,false);
+    el.addEventListener("click",tap,false);
+    el.addEventListener("touchend",tap,false);
   });
 })();
 
-window.addEventListener('pagehide',()=>{stopAll();});
+window.addEventListener("pagehide",cleanExit);
+window.addEventListener("beforeunload",cleanExit);
 </script>
 </body>
 </html>
