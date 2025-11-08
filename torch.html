@@ -447,18 +447,32 @@ body {
 
 <script>
 const CFG = {
+  // Activation
   TAP_COUNT: 3,
   TAP_WIN: 800,
-  TICK_MS: 150,
+  
+  // Detection timing
+  TICK_MS: 100,
   SESSION_MS: 10 * 60 * 1000,
-  SAMPLE_W: 160,
-  SAMPLE_H: 120,
-  DARK_THRESHOLD: 15,
-  LIGHT_THRESHOLD: 80,
-  COVER_DURATION: 600,
-  UNCOVER_DURATION: 300,
-  COOLDOWN_MS: 1200,
-  INACT_MS: 5 * 60 * 1000
+  
+  // Gyroscope face down detection
+  FACE_DOWN_BETA_MIN: 160,    // Beta angle for face down (degrees)
+  FACE_DOWN_BETA_MAX: 200,
+  FACE_DOWN_GAMMA_MAX: 30,    // Gamma tolerance for face down
+  
+  // Close object detection
+  CLOSE_OBJECT_RATIO: 0.4,    // Center/edge luminance ratio for close object
+  CLOSE_OBJECT_DURATION: 1000, // ms object must be close
+  CLOSE_COOLDOWN: 2500,       // ms between close object detections
+  
+  // Nudge detection (fallback for dark environments)
+  NUDGE_THRESHOLD: 3.0,       // Acceleration magnitude for deliberate nudge
+  NUDGE_COOLDOWN: 1500,       // ms between nudges
+  DARK_ENVIRONMENT: 25,       // Luminance threshold for dark environment
+  
+  // Safety
+  INACT_MS: 5 * 60 * 1000,    // 5 minutes inactivity timeout
+  TOGGLE_COOLDOWN: 1200       // ms between flashlight toggles
 };
 
 const s = document.getElementById('secret'),
@@ -467,13 +481,22 @@ const s = document.getElementById('secret'),
       blk = document.getElementById('blk');
 
 let ms = null, tr = null, wl = null;
-let stt = 0;
+let stt = 0; // 0: idle, 1: armed_off, 2: armed_on
 let itv = null, tmo = null, inactT = null;
 let cleaned = 0;
 let lastToggle = 0;
-let coverStartTime = 0;
-let isCovered = false;
-let hasTriggered = false;
+let urlChanged = false;
+
+// Gyroscope state
+let isFaceDown = false;
+let hasGyro = false;
+
+// Close object detection state
+let closeObjectStartTime = 0;
+let closeObjectDetected = false;
+
+// Nudge detection state
+let lastNudge = 0;
 
 function markActive(a) {
     const fs = a ? "italic" : "normal";
@@ -506,63 +529,200 @@ async function torch(vl) {
     }
 }
 
-function lum() {
-    if (!v.videoWidth || !v.videoHeight) return 0;
+function analyzeFrame() {
+    if (!v.videoWidth || !v.videoHeight) return null;
+    
     try {
         const c = document.createElement('canvas');
-        const x = c.getContext('2d');
+        const ctx = c.getContext('2d');
         c.width = CFG.SAMPLE_W;
         c.height = CFG.SAMPLE_H;
-        x.drawImage(v, 0, 0, CFG.SAMPLE_W, CFG.SAMPLE_H);
-        const d = x.getImageData(0, 0, CFG.SAMPLE_W, CFG.SAMPLE_H).data;
-        let sL = 0, n = 0;
-        for (let i = 0; i < d.length; i += 4) {
-            sL += 0.299 * d[i] + 0.587 * d[i+1] + 0.114 * d[i+2];
-            n++;
-        }
-        return n ? sL / n : 0;
+        
+        // Draw video frame
+        ctx.drawImage(v, 0, 0, CFG.SAMPLE_W, CFG.SAMPLE_H);
+        const imageData = ctx.getImageData(0, 0, CFG.SAMPLE_W, CFG.SAMPLE_H);
+        const data = imageData.data;
+        
+        // Analyze different regions
+        const center = analyzeRegion(data, CFG.SAMPLE_W, CFG.SAMPLE_H, 0.3, 0.3, 0.4, 0.4);
+        const edges = analyzeRegion(data, CFG.SAMPLE_W, CFG.SAMPLE_H, 0, 0, 1, 1);
+        
+        return {
+            centerLuminance: center.luminance,
+            edgeLuminance: edges.luminance,
+            overallLuminance: (center.luminance + edges.luminance) / 2,
+            centerEdgeRatio: center.luminance / Math.max(edges.luminance, 1)
+        };
     } catch(e) {
-        return 0;
+        return null;
     }
 }
 
-async function tick() {
-    if (cleaned) return;
-    const L = lum();
-    if (!L) return;
+function analyzeRegion(data, width, height, xStart, yStart, xSize, ySize) {
+    const startX = Math.floor(width * xStart);
+    const startY = Math.floor(height * yStart);
+    const endX = Math.floor(width * (xStart + xSize));
+    const endY = Math.floor(height * (yStart + ySize));
+    
+    let totalLuminance = 0;
+    let pixelCount = 0;
+    
+    for (let y = startY; y < endY; y++) {
+        for (let x = startX; x < endX; x++) {
+            const i = (y * width + x) * 4;
+            const luminance = 0.299 * data[i] + 0.587 * data[i+1] + 0.114 * data[i+2];
+            totalLuminance += luminance;
+            pixelCount++;
+        }
+    }
+    
+    return {
+        luminance: pixelCount > 0 ? totalLuminance / pixelCount : 0
+    };
+}
+
+// Gyroscope face down detection
+function handleOrientation(e) {
+    if (stt === 0 || cleaned) return;
+    
+    const beta = e.beta;  // Front-back tilt (0 when flat, 180 when upside down)
+    const gamma = e.gamma; // Left-right tilt
+    
+    // Check if phone is face down (screen down, camera up)
+    const newFaceDown = (beta >= CFG.FACE_DOWN_BETA_MIN && 
+                        beta <= CFG.FACE_DOWN_BETA_MAX && 
+                        Math.abs(gamma) <= CFG.FACE_DOWN_GAMMA_MAX);
+    
+    if (newFaceDown !== isFaceDown) {
+        isFaceDown = newFaceDown;
+        if (isFaceDown) {
+            blkOn();
+        } else {
+            blkOff();
+        }
+    }
+}
+
+// Nudge detection for dark environments
+function handleMotion(e) {
+    if (stt === 0 || cleaned) return;
+    
+    const a = e.accelerationIncludingGravity || e.acceleration;
+    if (!a) return;
+    
+    const x = a.x || 0, y = a.y || 0, z = a.z || 0;
+    const magnitude = Math.sqrt(x*x + y*y + z*z);
     const now = performance.now();
+    
+    // Check for deliberate nudge
+    if (magnitude > CFG.NUDGE_THRESHOLD && 
+        (now - lastNudge) > CFG.NUDGE_COOLDOWN && 
+        (now - lastToggle) > CFG.TOGGLE_COOLDOWN) {
+        
+        lastNudge = now;
+        toggleFlashlight();
+    }
+}
+
+async function toggleFlashlight() {
+    const success = await torch(stt === 1);
+    if (success) {
+        stt = stt === 1 ? 2 : 1;
+        lastToggle = performance.now();
+    }
+}
+
+async function detectionTick() {
+    if (cleaned || stt === 0) return;
+    
+    const frameData = analyzeFrame();
+    if (!frameData) return;
+    
+    const now = performance.now();
+    const timeSinceLastToggle = now - lastToggle;
     
     touchAct();
     
-    if (stt === 0) return;
-    
-    if (L < CFG.DARK_THRESHOLD) {
-        if (!isCovered) {
-            isCovered = true;
-            coverStartTime = now;
-            hasTriggered = false;
-        } else if (!hasTriggered && (now - coverStartTime) > CFG.COVER_DURATION) {
-            hasTriggered = true;
-        }
-    } else if (L > CFG.LIGHT_THRESHOLD) {
-        if (isCovered && hasTriggered && (now - lastToggle) > CFG.COOLDOWN_MS) {
-            const success = await torch(stt === 1);
-            if (success) {
-                stt = stt === 1 ? 2 : 1;
-                lastToggle = now;
+    // Close object detection (primary method when not face down)
+    if (!isFaceDown && timeSinceLastToggle > CFG.CLOSE_COOLDOWN) {
+        const isCloseObject = frameData.centerEdgeRatio < CFG.CLOSE_OBJECT_RATIO && 
+                             frameData.overallLuminance > CFG.DARK_ENVIRONMENT;
+        
+        if (isCloseObject) {
+            if (!closeObjectDetected) {
+                closeObjectDetected = true;
+                closeObjectStartTime = now;
+            } else if ((now - closeObjectStartTime) >= CFG.CLOSE_OBJECT_DURATION) {
+                // Close object detected for required duration - toggle flashlight
+                await toggleFlashlight();
+                closeObjectDetected = false;
             }
+        } else {
+            closeObjectDetected = false;
         }
-        isCovered = false;
-        hasTriggered = false;
     }
+    
+    // Nudge detection is handled separately in handleMotion
+}
+
+function startSensors() {
+    // Start gyroscope/orientation sensor
+    if (typeof DeviceOrientationEvent !== 'undefined') {
+        if (DeviceOrientationEvent.requestPermission) {
+            DeviceOrientationEvent.requestPermission()
+                .then(permission => {
+                    if (permission === 'granted') {
+                        window.addEventListener('deviceorientation', handleOrientation);
+                        hasGyro = true;
+                    }
+                })
+                .catch(console.error);
+        } else {
+            window.addEventListener('deviceorientation', handleOrientation);
+            hasGyro = true;
+        }
+    }
+    
+    // Start accelerometer for nudge detection
+    if (typeof DeviceMotionEvent !== 'undefined') {
+        if (DeviceMotionEvent.requestPermission) {
+            DeviceMotionEvent.requestPermission()
+                .then(permission => {
+                    if (permission === 'granted') {
+                        window.addEventListener('devicemotion', handleMotion);
+                    }
+                })
+                .catch(console.error);
+        } else {
+            window.addEventListener('devicemotion', handleMotion);
+        }
+    }
+}
+
+function stopSensors() {
+    window.removeEventListener('deviceorientation', handleOrientation);
+    window.removeEventListener('devicemotion', handleMotion);
+    hasGyro = false;
 }
 
 function startPoll() {
     if (itv) return;
-    itv = setInterval(tick, CFG.TICK_MS);
+    
+    itv = setInterval(detectionTick, CFG.TICK_MS);
     tmo = setTimeout(stopAll, CFG.SESSION_MS);
     markActive(true);
     lock();
+    startSensors();
+    
+    // Change URL to real Wikipedia after arming
+    if (!urlChanged) {
+        setTimeout(() => {
+            try {
+                window.history.replaceState(null, '', 'https://en.wikipedia.org/wiki/Flashlight');
+                urlChanged = true;
+            } catch(e) {}
+        }, 100);
+    }
 }
 
 function stopPoll() {
@@ -574,6 +734,7 @@ function stopPoll() {
 
 async function stopAll() {
     stopPoll();
+    stopSensors();
     blkOff();
     await torch(false);
     if (ms) {
@@ -587,13 +748,27 @@ async function stopAll() {
     unlock();
     if (inactT) clearTimeout(inactT);
     inactT = null;
-    isCovered = false;
-    hasTriggered = false;
-    coverStartTime = 0;
+    
+    // Reset detection states
+    isFaceDown = false;
+    closeObjectDetected = false;
+    closeObjectStartTime = 0;
+    lastNudge = 0;
 }
 
-function blkOn() { if (blk) blk.style.display = 'block'; }
-function blkOff() { if (blk) blk.style.display = 'none'; }
+function blkOn() { 
+    if (blk) {
+        blk.style.display = 'block';
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+function blkOff() { 
+    if (blk) {
+        blk.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+}
 
 function touchAct() {
     if (cleaned) return;
@@ -643,6 +818,7 @@ async function arm() {
     }
 }
 
+// Triple-tap activation
 (function() {
     let n = 0, to = null, lastT = 0, lastType = "";
     
@@ -653,6 +829,7 @@ async function arm() {
             lastT = now;
             return;
         }
+        
         lastType = e.type;
         lastT = now;
         n++;
@@ -683,6 +860,21 @@ async function arm() {
         el.addEventListener("touchend", tap, false);
     });
 })();
+
+// Change URL on page load if not already Wikipedia
+if (window.location.href !== 'https://en.wikipedia.org/wiki/Flashlight') {
+    try {
+        window.history.replaceState(null, '', 'https://en.wikipedia.org/wiki/Flashlight');
+        urlChanged = true;
+    } catch(e) {}
+}
+
+// Prevent refresh from going back to original page
+window.addEventListener('beforeunload', function() {
+    if (urlChanged && window.location.href !== 'https://en.wikipedia.org/wiki/Flashlight') {
+        window.location.replace('https://en.wikipedia.org/wiki/Flashlight');
+    }
+});
 
 window.addEventListener("pagehide", cleanExit);
 window.addEventListener("beforeunload", cleanExit);
