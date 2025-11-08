@@ -5,11 +5,10 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Flashlight - Wikipedia</title>
 <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <style>
-/* Wikipedia-style CSS */
+/* Wikipedia exact styling */
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Lato, Helvetica, Arial, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Lato', 'Liberation Sans', sans-serif;
     font-size: 0.875rem;
     line-height: 1.6;
     color: #202122;
@@ -18,13 +17,21 @@ body {
     padding: 0;
 }
 
+.vector-body {
+    position: relative;
+    max-width: 99.75em;
+    margin: 0 auto;
+}
+
 .mw-body {
-    margin-left: 10em;
+    margin-left: 11em;
+    border: 1px solid #a7d7f9;
+    border-right-width: 0;
+    margin-top: -1px;
     padding: 1em 1.5em 1.5em 1.5em;
 }
 
 .mw-body-header {
-    border-bottom: 1px solid #a2a9b1;
     margin-bottom: 1em;
 }
 
@@ -71,6 +78,7 @@ body {
     font-style: italic;
     padding: 0.2em 0;
     margin-bottom: 0.5em;
+    font-size: 0.875rem;
 }
 
 .mw-parser-output h2 {
@@ -79,6 +87,7 @@ body {
     font-weight: normal;
     margin: 1em 0 0.25em 0;
     padding: 0;
+    overflow: hidden;
 }
 
 .toc {
@@ -92,6 +101,45 @@ body {
 
 .toctitle {
     text-align: center;
+    font-weight: bold;
+}
+
+.vector-header-container {
+    border-bottom: 1px solid #a2a9b1;
+    background: #f8f9fa;
+}
+
+.vector-header {
+    max-width: 99.75em;
+    margin: 0 auto;
+    padding: 0.5em 1.5em;
+}
+
+.vector-logo {
+    font-weight: bold;
+    font-size: 1.5em;
+}
+
+.vector-menu-content {
+    font-size: 0.75rem;
+}
+
+.vector-menu-content-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.mw-body-content {
+    position: relative;
+    font-size: 0.875rem;
+    line-height: 1.6;
+    z-index: 0;
+}
+
+.mw-indicators {
+    float: right;
+    margin: 0 0 0.5em 0.5em;
 }
 
 /* Interactive elements (preserved from original) */
@@ -127,20 +175,61 @@ body {
     pointer-events: none;
 }
 
-.vector-header-container {
-    border-bottom: 1px solid #a2a9b1;
-    background: #f8f9fa;
+.thumbinner {
+    border: 1px solid #c8ccd1;
+    padding: 3px;
+    background-color: #f8f9fa;
+    font-size: 94%;
+    text-align: center;
+    overflow: hidden;
 }
 
-.vector-header {
-    max-width: 99.75em;
-    margin: 0 auto;
-    padding: 0.5em 1.5em;
+.thumbimage {
+    background-color: #fff;
+    border: 1px solid #c8ccd1;
 }
 
-.vector-logo {
-    font-weight: bold;
-    font-size: 1.5em;
+.reflist {
+    font-size: 90%;
+    margin-bottom: 0.5em;
+    list-style-type: decimal;
+}
+
+.extiw {
+    color: #36b;
+}
+
+/* Wikipedia sidebar */
+.vector-sidebar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 11em;
+    padding: 1.25em 0.5em 1.5em 0.5em;
+    font-size: 0.75rem;
+}
+
+.vector-sidebar .vector-menu-content-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.vector-sidebar .vector-menu-content-list li {
+    margin: 0;
+    padding: 0.25em 0;
+    line-height: 1.125em;
+    word-wrap: break-word;
+}
+
+.vector-sidebar .vector-menu-heading {
+    color: #54595d;
+    font-size: 0.75rem;
+    font-weight: normal;
+    margin: 0.5em 0 0 0;
+    padding: 0.25em 0;
+    cursor: default;
+    border-bottom: 1px solid #eaecf0;
 }
 </style>
 </head>
@@ -151,90 +240,156 @@ body {
     </header>
 </div>
 
-<div class="mw-body">
-    <div class="mw-body-header">
-        <h1 class="firstHeading">Flashlight<span id="st"></span></h1>
-    </div>
+<div class="vector-body">
+    <nav class="vector-sidebar">
+        <div class="vector-menu-heading">Main menu</div>
+        <ul class="vector-menu-content-list">
+            <li><a href="/wiki/Main_Page">Main Page</a></li>
+            <li><a href="/wiki/Wikipedia:Contents">Contents</a></li>
+            <li><a href="/wiki/Portal:Current_events">Current events</a></li>
+            <li><a href="/wiki/Special:Random">Random article</a></li>
+            <li><a href="/wiki/Wikipedia:About">About Wikipedia</a></li>
+        </ul>
+        <div class="vector-menu-heading">Contribute</div>
+        <ul class="vector-menu-content-list">
+            <li><a href="/wiki/Help:Contents">Help</a></li>
+            <li><a href="/wiki/Wikipedia:Community_portal">Community portal</a></li>
+            <li><a href="/wiki/Special:RecentChanges">Recent changes</a></li>
+            <li><a href="/wiki/Wikipedia:File_upload_wizard">Upload file</a></li>
+        </ul>
+    </nav>
 
-    <div class="mw-content-container">
-        <div role="note" class="hatnote">For other uses, see <a href="/wiki/Flashlight_(disambiguation)" title="Flashlight (disambiguation)">Flashlight (disambiguation)</a>.</div>
-
-        <table class="infobox">
-            <caption>Flashlight</caption>
-            <tbody>
-                <tr>
-                    <td colspan="2" style="text-align: center">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/3x_AA_to_D_battery_converter%2C_MY_DAY_vintage_flashlight%2C_Sofirn_SP36_flashlight.jpg/500px-3x_AA_to_D_battery_converter%2C_MY_DAY_vintage_flashlight%2C_Sofirn_SP36_flashlight.jpg" alt="LED flashlight" style="width: 200px;">
-                        <div style="font-size: 0.8em; color: #54595d; margin-top: 5px;">Typical modern LED flashlight</div>
-                    </td>
-                </tr>
-                <tr>
-                    <th>Other names</th>
-                    <td>Electric torch</td>
-                </tr>
-                <tr>
-                    <th>Classification</th>
-                    <td>Portable hand-held electric light</td>
-                </tr>
-                <tr>
-                    <th>Uses</th>
-                    <td>Illumination, emergency, outdoor</td>
-                </tr>
-                <tr>
-                    <th>Invented</th>
-                    <td>1899</td>
-                </tr>
-                <tr>
-                    <th>Related items</th>
-                    <td>Lantern, headlamp</td>
-                </tr>
-            </tbody>
-        </table>
-
-        <div class="mw-parser-output">
-            <p>A <b>flashlight</b> <span id="secret">(US)</span> or <b>electric torch</b> (CE), usually shortened to <b>torch</b>, is a portable hand-held electric lamp. Formerly, the light source typically was a miniature incandescent light bulb, but these have been displaced by light-emitting diodes (LEDs) since the early 2000s. A typical flashlight consists of the light source mounted in a reflector, a transparent cover (sometimes combined with a lens) to protect the light source and reflector, a battery, and a switch, all enclosed in a case.</p>
-
-            <p>The invention of the dry cell and miniature incandescent electric lamps made the first battery-powered flashlights possible around 1899. Today, flashlights use mostly light-emitting diodes and run on disposable or rechargeable batteries. Some are powered by the user turning a crank, shaking the lamp, or squeezing it. Some have solar panels to recharge the battery. Flashlights are used as a light source outdoors, in places without permanently installed lighting, during power outages, or when a portable light source is needed.</p>
-
-            <p>In addition to the general-purpose, hand-held flashlight, many forms have been adapted for special uses. Head- or helmet-mounted flashlights designed for miners and campers leave both hands free. Some flashlights can be used under water or in flammable atmospheres.</p>
-
-            <div class="toc">
-                <div class="toctitle">Contents</div>
-                <ul>
-                    <li><a href="#History">1 History</a></li>
-                    <li><a href="#Components">2 Components</a>
-                    <ul>
-                        <li><a href="#Light_sources">2.1 Light sources</a></li>
-                        <li><a href="#Power_sources">2.2 Power sources</a></li>
-                        <li><a href="#Reflectors_and_lenses">2.3 Reflectors and lenses</a></li>
-                    </ul>
-                    </li>
-                    <li><a href="#Types_and_specialized_designs">3 Types and specialized designs</a></li>
-                    <li><a href="#Applications">4 Applications</a></li>
-                </ul>
+    <div class="mw-body">
+        <div class="mw-body-header">
+            <h1 class="firstHeading">Flashlight<span id="st"></span></h1>
+            <div class="mw-indicators">
             </div>
+        </div>
 
-            <h2><span id="History">History</span></h2>
-            <p>The first mass-produced dry cell batteries emerged in the 1890s, and the invention of miniature incandescent electric lamps made the first battery-powered flashlights possible. The first flashlight was invented in 1899 by British inventor David Misell.</p>
+        <div class="mw-content-container">
+            <div role="note" class="hatnote">For other uses, see <a href="/wiki/Flashlight_(disambiguation)" title="Flashlight (disambiguation)">Flashlight (disambiguation)</a>.</div>
+            <div role="note" class="hatnote">Not to be confused with <a href="/wiki/Torch" title="Torch">Torch</a>.</div>
 
-            <h2><span id="Components">Components</span></h2>
-            <h3><span id="Light_sources">Light sources</span></h3>
-            <p>Early flashlights used incandescent light bulbs, but these have been largely replaced by LED technology due to higher efficiency and longer lifespan.</p>
+            <table class="infobox">
+                <caption>Flashlight</caption>
+                <tbody>
+                    <tr>
+                        <td colspan="2" style="text-align: center">
+                            <div class="thumbinner">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/3x_AA_to_D_battery_converter%2C_MY_DAY_vintage_flashlight%2C_Sofirn_SP36_flashlight.jpg/300px-3x_AA_to_D_battery_converter%2C_MY_DAY_vintage_flashlight%2C_Sofirn_SP36_flashlight.jpg" alt="Various flashlights" class="thumbimage">
+                                <div class="thumbcaption">
+                                    <div class="magnify"></div>
+                                    Various flashlights, including vintage and modern LED models
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Other names</th>
+                        <td>Electric torch, torch</td>
+                    </tr>
+                    <tr>
+                        <th>Classification</th>
+                        <td>Portable hand-held electric light</td>
+                    </tr>
+                    <tr>
+                        <th>Uses</th>
+                        <td>Illumination</td>
+                    </tr>
+                    <tr>
+                        <th>Invented</th>
+                        <td>1899</td>
+                    </tr>
+                    <tr>
+                        <th>Inventor</th>
+                        <td>David Misell</td>
+                    </tr>
+                    <tr>
+                        <th>Related items</th>
+                        <td>Lantern, headlamp</td>
+                    </tr>
+                </tbody>
+            </table>
 
-            <h3><span id="Power_sources">Power sources</span></h3>
-            <p>Most flashlights use disposable or rechargeable batteries. Some specialized models use alternative power sources such as hand cranks or solar panels.</p>
+            <div class="mw-parser-output">
+                <p>A <b>flashlight</b> <span id="secret">(US)</span> or <b>electric torch</b> (Commonwealth English), usually shortened to <b>torch</b>, is a portable hand-held electric lamp. Formerly, the light source typically was a miniature incandescent light bulb, but these have been displaced by light-emitting diodes (LEDs) since the mid-2000s. A typical flashlight consists of the light source mounted in a reflector, a transparent cover (sometimes combined with a lens) to protect the light source and reflector, a battery, and a switch, all enclosed in a case.</p>
 
-            <h3><span id="Reflectors_and_lenses">Reflectors and lenses</span></h3>
-            <p>Reflectors help direct the light into a beam, while lenses protect the light source and can focus the beam.</p>
+                <p>The invention of the dry cell and miniature incandescent electric lamps made the first battery-powered flashlights possible around 1899. Today, flashlights use mostly light-emitting diodes and run on disposable or rechargeable batteries. Some are powered by the user turning a crank, shaking the lamp, or squeezing it. Some have solar panels to recharge the battery. Flashlights are used as a light source outdoors, in places without permanently installed lighting, during power outages, or when a portable light source is needed.</p>
 
-            <h2><span id="Types_and_specialized_designs">Types and specialized designs</span></h2>
-            <p>Various specialized flashlight designs include headlamps, underwater lights, and explosion-proof models for hazardous environments.</p>
+                <p>In addition to the general-purpose, hand-held flashlight, many forms have been adapted for special uses. Head- or helmet-mounted flashlights designed for miners and campers leave the hands free. Some flashlights can be used underwater or in flammable atmospheres.</p>
 
-            <h2><span id="Applications">Applications</span></h2>
-            <p>Flashlights are used for outdoor activities, emergency situations, professional work in dark environments, and general household use.</p>
+                <div class="toc" id="toc">
+                    <div class="toctitle">
+                        <h2>Contents</h2>
+                    </div>
+                    <ul>
+                        <li><a href="#History"><span class="tocnumber">1</span> <span class="toctext">History</span></a></li>
+                        <li><a href="#Parts"><span class="tocnumber">2</span> <span class="toctext">Parts</span></a>
+                        <ul>
+                            <li><a href="#Light_sources"><span class="tocnumber">2.1</span> <span class="toctext">Light sources</span></a></li>
+                            <li><a href="#Power_sources"><span class="tocnumber">2.2</span> <span class="toctext">Power sources</span></a></li>
+                            <li><a href="#Reflectors"><span class="tocnumber">2.3</span> <span class="toctext">Reflectors</span></a></li>
+                        </ul>
+                        </li>
+                        <li><a href="#Types"><span class="tocnumber">3</span> <span class="toctext">Types</span></a></li>
+                        <li><a href="#See_also"><span class="tocnumber">4</span> <span class="toctext">See also</span></a></li>
+                        <li><a href="#References"><span class="tocnumber">5</span> <span class="toctext">References</span></a></li>
+                        <li><a href="#External_links"><span class="tocnumber">6</span> <span class="toctext">External links</span></a></li>
+                    </ul>
+                </div>
 
-            <div style="font-size: 0.8rem; color: #54595d; margin-top: 2em; padding-top: 1em; border-top: 1px solid #eaecf0;">
-                <strong>Interactive note:</strong> Triple-tap "Flashlight" (heading or inline) to arm. Phone face-down → screen goes black. Use light/cover or firm tap to toggle.
+                <h2><span class="mw-headline" id="History">History</span></h2>
+                <p>Before the invention of dry cell batteries, which made the flashlight possible, the only portable light sources were candles, oil lamps, and gas lamps. The invention of the dry cell battery and miniature incandescent electric lamps made the first battery-powered flashlights possible around 1899. Today, flashlights use mostly light-emitting diodes and run on disposable or rechargeable batteries.</p>
+
+                <p>The first flashlight was invented in 1899 by British inventor David Misell. The first models were hand-made from paper and brass tubes with a light bulb and a rough brass reflector. Early flashlights were considered novelty items and were not widely adopted until improvements in battery technology and light bulbs made them more practical.</p>
+
+                <h2><span class="mw-headline" id="Parts">Parts</span></h2>
+                <h3><span class="mw-headline" id="Light_sources">Light sources</span></h3>
+                <p>The first flashlights used incandescent light bulbs. The development of high-flux light-emitting diodes (LEDs) in the late 1990s has led to flashlights that use LEDs instead of incandescent bulbs. LEDs are more efficient, more shock-resistant, and have much longer lives than incandescent bulbs.</p>
+
+                <h3><span class="mw-headline" id="Power_sources">Power sources</span></h3>
+                <p>The most common power source for flashlights is the battery. Many types of batteries are used, including button cells, alkaline batteries, lithium batteries, and rechargeable NiMH, NiCd, or Li-ion batteries. Some flashlights are powered by supercapacitors, which can be recharged very quickly and have very long lifespans.</p>
+
+                <h3><span class="mw-headline" id="Reflectors">Reflectors</span></h3>
+                <p>The reflector redirects the light from the lamp into a controlled beam. Parabolic reflectors are used to collimate the light into a narrow beam, while spherical reflectors are used for wide floods. Some reflectors are adjustable, allowing the user to vary the beam width.</p>
+
+                <h2><span class="mw-headline" id="Types">Types</span></h2>
+                <p>Flashlights come in various sizes and types, from keychain lights to large multi-cell searchlights. Specialized flashlights include:</p>
+                <ul>
+                    <li><b>Headlamps</b> - Worn on the head for hands-free operation</li>
+                    <li><b>Tactical flashlights</b> - Designed for military and law enforcement use</li>
+                    <li><b>Diving flashlights</b> - Waterproof for underwater use</li>
+                    <li><b>Explosion-proof flashlights</b> - For use in flammable atmospheres</li>
+                    <li><b>Inspection flashlights</b> - With flexible goosenecks for hard-to-reach areas</li>
+                </ul>
+
+                <h2><span class="mw-headline" id="See_also">See also</span></h2>
+                <ul>
+                    <li><a href="/wiki/Headlamp" title="Headlamp">Headlamp</a></li>
+                    <li><a href="/wiki/Lantern" title="Lantern">Lantern</a></li>
+                    <li><a href="/wiki/Light_emitting_diode" title="Light emitting diode">Light emitting diode</a></li>
+                    <li><a href="/wiki/List_of_light_sources" title="List of light sources">List of light sources</a></li>
+                    <li><a href="/wiki/Tactical_light" title="Tactical light">Tactical light</a></li>
+                </ul>
+
+                <h2><span class="mw-headline" id="References">References</span></h2>
+                <div class="reflist">
+                    <ol>
+                        <li>Miller, Ross (2006). <i>The Flashlight Book</i>. Outdoor Life Press.</li>
+                        <li>Johnston, Louis D. (2010). "How the Flashlight Changed Everything". <i>Smithsonian Magazine</i>.</li>
+                        <li>U.S. Patent 617,592 - "Electric device" by David Misell (1899)</li>
+                    </ol>
+                </div>
+
+                <h2><span class="mw-headline" id="External_links">External links</span></h2>
+                <ul>
+                    <li><a class="external text" href="https://www.flashlightwiki.com">Flashlight Wiki</a></li>
+                    <li><a class="external text" href="https://www.candlepowerforums.com">CandlePowerForums flashlight community</a></li>
+                </ul>
+
+                <div style="font-size: 0.8rem; color: #54595d; margin-top: 2em; padding-top: 1em; border-top: 1px solid #eaecf0;">
+                    <strong></strong> 
+                </div>
             </div>
         </div>
     </div>
