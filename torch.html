@@ -2,159 +2,159 @@
 <html class="client-js vector-feature-language-in-header-enabled vector-feature-language-in-main-page-header-disabled vector-feature-sticky-header-disabled vector-feature-page-tools-pinned-disabled vector-feature-toc-pinned-enabled vector-feature-main-menu-pinned-disabled vector-feature-limited-width-enabled vector-feature-limited-width-content-enabled vector-feature-custom-font-size-enabled vector-feature-appearance-disabled vector-feature-appearance-pinned-disabled vector-feature-night-mode-disabled skin-theme-clientpref-night" lang="en" dir="ltr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>Flashlight - Wikipedia</title>
 <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
 <style>
-/* Wikipedia exact styling */
+/* Wikipedia mobile-first styling */
+* {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Lato', 'Liberation Sans', sans-serif;
-    font-size: 0.875rem;
+    font-size: 14px;
     line-height: 1.6;
     color: #202122;
     background-color: #fff;
     margin: 0;
     padding: 0;
+    overflow-x: hidden;
+    touch-action: manipulation;
 }
 
-.vector-body {
-    position: relative;
-    max-width: 99.75em;
-    margin: 0 auto;
+.vector-header-container {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    border-bottom: 1px solid #a2a9b1;
+    background: #f8f9fa;
+    padding: 8px 12px;
+}
+
+.vector-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.vector-logo {
+    font-weight: bold;
+    font-size: 1.2em;
+    color: #000;
+}
+
+.vector-menu-tabs {
+    display: none;
 }
 
 .mw-body {
-    margin-left: 11em;
-    border: 1px solid #a7d7f9;
-    border-right-width: 0;
-    margin-top: -1px;
-    padding: 1em 1.5em 1.5em 1.5em;
-}
-
-.mw-body-header {
-    margin-bottom: 1em;
+    padding: 12px;
+    max-width: 100%;
+    overflow-wrap: break-word;
 }
 
 .firstHeading {
     font-family: 'Linux Libertine', 'Georgia', 'Times', serif;
-    border-bottom: 1px solid #a2a9b1;
     font-weight: normal;
-    margin: 0;
-    padding-bottom: 0.25em;
+    margin: 0 0 8px 0;
+    padding: 0;
+    font-size: 1.8em;
+    line-height: 1.2;
+    border-bottom: 1px solid #a2a9b1;
+}
+
+.hatnote {
+    font-style: italic;
+    padding: 4px 0;
+    margin-bottom: 12px;
+    font-size: 0.9em;
+    color: #54595d;
 }
 
 .infobox {
     border: 1px solid #a2a9b1;
-    border-spacing: 3px;
     background-color: #f8f9fa;
     color: black;
-    margin: 0.5em 0 0.5em 1em;
-    padding: 0.2em;
-    float: right;
-    clear: right;
-    font-size: 88%;
-    line-height: 1.5em;
-    width: 22em;
+    margin: 12px 0;
+    padding: 8px;
+    font-size: 13px;
+    line-height: 1.4;
+    width: 100%;
+    float: none;
 }
 
 .infobox caption {
-    font-size: 125%;
+    font-size: 16px;
     font-weight: bold;
-    padding: 0.2em;
+    padding: 4px 0 8px 0;
     text-align: center;
 }
 
 .infobox th, .infobox td {
     vertical-align: top;
     text-align: left;
-    padding: 0.2em 0.4em;
+    padding: 4px 6px;
 }
 
-.infobox tr:first-child th {
+.thumbinner {
+    border: 1px solid #c8ccd1;
+    padding: 6px;
+    background-color: #f8f9fa;
     text-align: center;
+    margin: 8px auto;
+    max-width: 100%;
 }
 
-.hatnote {
-    font-style: italic;
-    padding: 0.2em 0;
-    margin-bottom: 0.5em;
-    font-size: 0.875rem;
+.thumbimage {
+    max-width: 100%;
+    height: auto;
+}
+
+.thumbcaption {
+    font-size: 12px;
+    color: #54595d;
+    margin-top: 6px;
+    line-height: 1.4;
 }
 
 .mw-parser-output h2 {
     font-family: 'Linux Libertine', 'Georgia', 'Times', serif;
     border-bottom: 1px solid #a2a9b1;
     font-weight: normal;
-    margin: 1em 0 0.25em 0;
+    margin: 24px 0 8px 0;
     padding: 0;
-    overflow: hidden;
+    font-size: 1.4em;
 }
 
 .toc {
-    display: table;
-    border: 1px solid #a2a9b1;
-    background-color: #f8f9fa;
-    font-size: 95%;
-    padding: 7px;
-    margin: 0 0 1em 1em;
+    display: none;
 }
 
-.toctitle {
-    text-align: center;
-    font-weight: bold;
-}
-
-.vector-header-container {
-    border-bottom: 1px solid #a2a9b1;
-    background: #f8f9fa;
-}
-
-.vector-header {
-    max-width: 99.75em;
-    margin: 0 auto;
-    padding: 0.5em 1.5em;
-}
-
-.vector-logo {
-    font-weight: bold;
-    font-size: 1.5em;
-}
-
-.vector-menu-content {
-    font-size: 0.75rem;
-}
-
-.vector-menu-content-list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-}
-
-.mw-body-content {
-    position: relative;
-    font-size: 0.875rem;
-    line-height: 1.6;
-    z-index: 0;
-}
-
-.mw-indicators {
-    float: right;
-    margin: 0 0 0.5em 0.5em;
-}
-
-/* Interactive elements (preserved from original) */
+/* Interactive elements */
 #secret, .firstHeading {
     cursor: pointer;
-    transition: .25s;
+    transition: all 0.3s ease;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+#secret:hover, .firstHeading:hover {
+    background-color: #f8f9fa;
 }
 
 #st {
     width: 6px;
     height: 6px;
     border-radius: 6px;
-    background: #c5cdd6;
-    opacity: .25;
-    transition: .25s;
+    background: #36c;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+#st.active {
+    opacity: 1;
 }
 
 #v {
@@ -175,535 +175,531 @@ body {
     pointer-events: none;
 }
 
-.thumbinner {
-    border: 1px solid #c8ccd1;
-    padding: 3px;
-    background-color: #f8f9fa;
-    font-size: 94%;
-    text-align: center;
-    overflow: hidden;
+/* Mobile menu */
+.mobile-menu {
+    display: flex;
+    gap: 16px;
+    font-size: 14px;
 }
 
-.thumbimage {
-    background-color: #fff;
-    border: 1px solid #c8ccd1;
+.mobile-menu a {
+    color: #36c;
+    text-decoration: none;
 }
 
-.reflist {
-    font-size: 90%;
-    margin-bottom: 0.5em;
-    list-style-type: decimal;
+/* Status indicator */
+.status-indicator {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #ccc;
+    z-index: 1000;
+    transition: all 0.3s ease;
 }
 
-.extiw {
-    color: #36b;
+.status-indicator.armed {
+    background: #ff6b35;
+    animation: pulse 2s infinite;
 }
 
-/* Wikipedia sidebar */
-.vector-sidebar {
-    position: absolute;
+.status-indicator.active {
+    background: #4CAF50;
+    box-shadow: 0 0 10px #4CAF50;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+/* Instruction overlay */
+.instruction-overlay {
+    position: fixed;
     top: 0;
     left: 0;
-    width: 11em;
-    padding: 1.25em 0.5em 1.5em 0.5em;
-    font-size: 0.75rem;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.8);
+    color: white;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    padding: 20px;
+    text-align: center;
 }
 
-.vector-sidebar .vector-menu-content-list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
+.instruction-overlay.active {
+    display: flex;
 }
 
-.vector-sidebar .vector-menu-content-list li {
-    margin: 0;
-    padding: 0.25em 0;
-    line-height: 1.125em;
-    word-wrap: break-word;
+.instruction-icon {
+    font-size: 48px;
+    margin-bottom: 20px;
 }
 
-.vector-sidebar .vector-menu-heading {
-    color: #54595d;
-    font-size: 0.75rem;
-    font-weight: normal;
-    margin: 0.5em 0 0 0;
-    padding: 0.25em 0;
-    cursor: default;
-    border-bottom: 1px solid #eaecf0;
+/* Tablet and desktop */
+@media (min-width: 768px) {
+    body {
+        font-size: 14px;
+    }
+    
+    .mw-body {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .infobox {
+        float: right;
+        width: 300px;
+        margin: 0 0 12px 20px;
+    }
+    
+    .vector-menu-tabs {
+        display: block;
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    body {
+        background-color: #101418;
+        color: #f8f9fa;
+    }
+    
+    .vector-header-container {
+        background: #1e2125;
+        border-bottom-color: #404448;
+    }
+    
+    .infobox {
+        background-color: #1e2125;
+        border-color: #404448;
+    }
+    
+    .firstHeading {
+        border-bottom-color: #404448;
+    }
 }
 </style>
 </head>
 <body>
 <div class="vector-header-container">
     <header class="vector-header">
-        <div class="vector-logo">Wikipedia<span style="font-size: 0.7em; margin-left: 5px;">The Free Encyclopedia</span></div>
+        <div class="vector-logo">Wikipedia</div>
+        <div class="mobile-menu">
+            <a href="#article">Article</a>
+            <a href="#talk">Talk</a>
+        </div>
     </header>
 </div>
 
-<div class="vector-body">
-    <nav class="vector-sidebar">
-        <div class="vector-menu-heading">Main menu</div>
-        <ul class="vector-menu-content-list">
-            <li><a href="/wiki/Main_Page">Main Page</a></li>
-            <li><a href="/wiki/Wikipedia:Contents">Contents</a></li>
-            <li><a href="/wiki/Portal:Current_events">Current events</a></li>
-            <li><a href="/wiki/Special:Random">Random article</a></li>
-            <li><a href="/wiki/Wikipedia:About">About Wikipedia</a></li>
-        </ul>
-        <div class="vector-menu-heading">Contribute</div>
-        <ul class="vector-menu-content-list">
-            <li><a href="/wiki/Help:Contents">Help</a></li>
-            <li><a href="/wiki/Wikipedia:Community_portal">Community portal</a></li>
-            <li><a href="/wiki/Special:RecentChanges">Recent changes</a></li>
-            <li><a href="/wiki/Wikipedia:File_upload_wizard">Upload file</a></li>
-        </ul>
-    </nav>
-
-    <div class="mw-body">
-        <div class="mw-body-header">
-            <h1 class="firstHeading">Flashlight<span id="st"></span></h1>
-            <div class="mw-indicators">
-            </div>
-        </div>
-
-        <div class="mw-content-container">
-            <div role="note" class="hatnote">For other uses, see <a href="/wiki/Flashlight_(disambiguation)" title="Flashlight (disambiguation)">Flashlight (disambiguation)</a>.</div>
-            <div role="note" class="hatnote">Not to be confused with <a href="/wiki/Torch" title="Torch">Torch</a>.</div>
-
-            <table class="infobox">
-                <caption>Flashlight</caption>
-                <tbody>
-                    <tr>
-                        <td colspan="2" style="text-align: center">
-                            <div class="thumbinner">
-                                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/3x_AA_to_D_battery_converter%2C_MY_DAY_vintage_flashlight%2C_Sofirn_SP36_flashlight.jpg/300px-3x_AA_to_D_battery_converter%2C_MY_DAY_vintage_flashlight%2C_Sofirn_SP36_flashlight.jpg" alt="Various flashlights" class="thumbimage">
-                                <div class="thumbcaption">
-                                    <div class="magnify"></div>
-                                    Various flashlights, including vintage and modern LED models
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th>Other names</th>
-                        <td>Electric torch, torch</td>
-                    </tr>
-                    <tr>
-                        <th>Classification</th>
-                        <td>Portable hand-held electric light</td>
-                    </tr>
-                    <tr>
-                        <th>Uses</th>
-                        <td>Illumination</td>
-                    </tr>
-                    <tr>
-                        <th>Invented</th>
-                        <td>1899</td>
-                    </tr>
-                    <tr>
-                        <th>Inventor</th>
-                        <td>David Misell</td>
-                    </tr>
-                    <tr>
-                        <th>Related items</th>
-                        <td>Lantern, headlamp</td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <div class="mw-parser-output">
-                <p>A <b>flashlight</b> <span id="secret">(US)</span> or <b>electric torch</b> (Commonwealth English), usually shortened to <b>torch</b>, is a portable hand-held electric lamp. Formerly, the light source typically was a miniature incandescent light bulb, but these have been displaced by light-emitting diodes (LEDs) since the mid-2000s. A typical flashlight consists of the light source mounted in a reflector, a transparent cover (sometimes combined with a lens) to protect the light source and reflector, a battery, and a switch, all enclosed in a case.</p>
-
-                <p>The invention of the dry cell and miniature incandescent electric lamps made the first battery-powered flashlights possible around 1899. Today, flashlights use mostly light-emitting diodes and run on disposable or rechargeable batteries. Some are powered by the user turning a crank, shaking the lamp, or squeezing it. Some have solar panels to recharge the battery. Flashlights are used as a light source outdoors, in places without permanently installed lighting, during power outages, or when a portable light source is needed.</p>
-
-                <p>In addition to the general-purpose, hand-held flashlight, many forms have been adapted for special uses. Head- or helmet-mounted flashlights designed for miners and campers leave the hands free. Some flashlights can be used underwater or in flammable atmospheres.</p>
-
-                <div class="toc" id="toc">
-                    <div class="toctitle">
-                        <h2>Contents</h2>
-                    </div>
-                    <ul>
-                        <li><a href="#History"><span class="tocnumber">1</span> <span class="toctext">History</span></a></li>
-                        <li><a href="#Parts"><span class="tocnumber">2</span> <span class="toctext">Parts</span></a>
-                        <ul>
-                            <li><a href="#Light_sources"><span class="tocnumber">2.1</span> <span class="toctext">Light sources</span></a></li>
-                            <li><a href="#Power_sources"><span class="tocnumber">2.2</span> <span class="toctext">Power sources</span></a></li>
-                            <li><a href="#Reflectors"><span class="tocnumber">2.3</span> <span class="toctext">Reflectors</span></a></li>
-                        </ul>
-                        </li>
-                        <li><a href="#Types"><span class="tocnumber">3</span> <span class="toctext">Types</span></a></li>
-                        <li><a href="#See_also"><span class="tocnumber">4</span> <span class="toctext">See also</span></a></li>
-                        <li><a href="#References"><span class="tocnumber">5</span> <span class="toctext">References</span></a></li>
-                        <li><a href="#External_links"><span class="tocnumber">6</span> <span class="toctext">External links</span></a></li>
-                    </ul>
-                </div>
-
-                <h2><span class="mw-headline" id="History">History</span></h2>
-                <p>Before the invention of dry cell batteries, which made the flashlight possible, the only portable light sources were candles, oil lamps, and gas lamps. The invention of the dry cell battery and miniature incandescent electric lamps made the first battery-powered flashlights possible around 1899. Today, flashlights use mostly light-emitting diodes and run on disposable or rechargeable batteries.</p>
-
-                <p>The first flashlight was invented in 1899 by British inventor David Misell. The first models were hand-made from paper and brass tubes with a light bulb and a rough brass reflector. Early flashlights were considered novelty items and were not widely adopted until improvements in battery technology and light bulbs made them more practical.</p>
-
-                <h2><span class="mw-headline" id="Parts">Parts</span></h2>
-                <h3><span class="mw-headline" id="Light_sources">Light sources</span></h3>
-                <p>The first flashlights used incandescent light bulbs. The development of high-flux light-emitting diodes (LEDs) in the late 1990s has led to flashlights that use LEDs instead of incandescent bulbs. LEDs are more efficient, more shock-resistant, and have much longer lives than incandescent bulbs.</p>
-
-                <h3><span class="mw-headline" id="Power_sources">Power sources</span></h3>
-                <p>The most common power source for flashlights is the battery. Many types of batteries are used, including button cells, alkaline batteries, lithium batteries, and rechargeable NiMH, NiCd, or Li-ion batteries. Some flashlights are powered by supercapacitors, which can be recharged very quickly and have very long lifespans.</p>
-
-                <h3><span class="mw-headline" id="Reflectors">Reflectors</span></h3>
-                <p>The reflector redirects the light from the lamp into a controlled beam. Parabolic reflectors are used to collimate the light into a narrow beam, while spherical reflectors are used for wide floods. Some reflectors are adjustable, allowing the user to vary the beam width.</p>
-
-                <h2><span class="mw-headline" id="Types">Types</span></h2>
-                <p>Flashlights come in various sizes and types, from keychain lights to large multi-cell searchlights. Specialized flashlights include:</p>
-                <ul>
-                    <li><b>Headlamps</b> - Worn on the head for hands-free operation</li>
-                    <li><b>Tactical flashlights</b> - Designed for military and law enforcement use</li>
-                    <li><b>Diving flashlights</b> - Waterproof for underwater use</li>
-                    <li><b>Explosion-proof flashlights</b> - For use in flammable atmospheres</li>
-                    <li><b>Inspection flashlights</b> - With flexible goosenecks for hard-to-reach areas</li>
-                </ul>
-
-                <h2><span class="mw-headline" id="See_also">See also</span></h2>
-                <ul>
-                    <li><a href="/wiki/Headlamp" title="Headlamp">Headlamp</a></li>
-                    <li><a href="/wiki/Lantern" title="Lantern">Lantern</a></li>
-                    <li><a href="/wiki/Light_emitting_diode" title="Light emitting diode">Light emitting diode</a></li>
-                    <li><a href="/wiki/List_of_light_sources" title="List of light sources">List of light sources</a></li>
-                    <li><a href="/wiki/Tactical_light" title="Tactical light">Tactical light</a></li>
-                </ul>
-
-                <h2><span class="mw-headline" id="References">References</span></h2>
-                <div class="reflist">
-                    <ol>
-                        <li>Miller, Ross (2006). <i>The Flashlight Book</i>. Outdoor Life Press.</li>
-                        <li>Johnston, Louis D. (2010). "How the Flashlight Changed Everything". <i>Smithsonian Magazine</i>.</li>
-                        <li>U.S. Patent 617,592 - "Electric device" by David Misell (1899)</li>
-                    </ol>
-                </div>
-
-                <h2><span class="mw-headline" id="External_links">External links</span></h2>
-                <ul>
-                    <li><a class="external text" href="https://www.flashlightwiki.com">Flashlight Wiki</a></li>
-                    <li><a class="external text" href="https://www.candlepowerforums.com">CandlePowerForums flashlight community</a></li>
-                </ul>
-
-                <div style="font-size: 0.8rem; color: #54595d; margin-top: 2em; padding-top: 1em; border-top: 1px solid #eaecf0;">
-                    <strong></strong> 
-                </div>
-            </div>
-        </div>
+<div class="mw-body">
+    <h1 class="firstHeading">Flashlight<span id="st"></span></h1>
+    
+    <div class="hatnote">
+        For other uses, see <a href="/wiki/Flashlight_(disambiguation)">Flashlight (disambiguation)</a>.
     </div>
+    <div class="hatnote">
+        Not to be confused with <a href="/wiki/Torch">Torch</a>.
+    </div>
+
+    <table class="infobox">
+        <caption>Flashlight</caption>
+        <tbody>
+            <tr>
+                <td colspan="2" style="text-align: center">
+                    <div class="thumbinner">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/3x_AA_to_D_battery_converter%2C_MY_DAY_vintage_flashlight%2C_Sofirn_SP36_flashlight.jpg/500px-3x_AA_to_D_battery_converter%2C_MY_DAY_vintage_flashlight%2C_Sofirn_SP36_flashlight.jpg" alt="Various flashlights" class="thumbimage">
+                        <div class="thumbcaption">
+                            A set of modern LED flashlights. Left to right: 3x AA to D parallel battery converter, MY DAY vintage flashlight, Sofirn SP36 flashlight.
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <th>Other names</th>
+                <td>Electric torch, torch</td>
+            </tr>
+            <tr>
+                <th>Classification</th>
+                <td>Portable hand-held electric light</td>
+            </tr>
+            <tr>
+                <th>Uses</th>
+                <td>Illumination</td>
+            </tr>
+            <tr>
+                <th>Invented</th>
+                <td>1899</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="mw-parser-output">
+        <p>A <b>flashlight</b> <span id="secret">(North American English)</span> or <b>electric torch</b> (Commonwealth English), usually shortened to <b>torch</b>, is a portable hand-held electric lamp. Formerly, the light source typically was a miniature incandescent light bulb, but these have been displaced by light-emitting diodes (LEDs) since the early 2000s. A typical flashlight consists of the light source mounted in a reflector, a transparent cover (sometimes combined with a lens) to protect the light source and reflector, a battery, and a switch, all enclosed in a case.</p>
+
+        <p>The invention of the dry cell and miniature incandescent electric lamps made the first battery-powered flashlights possible around 1899. Today, flashlights use mostly light-emitting diodes and run on disposable or rechargeable batteries. Some are powered by the user turning a crank, shaking the lamp, or squeezing it. Some have solar panels to recharge the battery. Flashlights are used as a light source outdoors, in places without permanently installed lighting, during power outages, or when a portable light source is needed.</p>
+
+        <p>In addition to the general-purpose, hand-held flashlight, many forms have been adapted for special uses. Head- or helmet-mounted flashlights designed for miners and campers leave the hands free. Some flashlights can be used underwater or in flammable atmospheres.</p>
+
+        <h2><span class="mw-headline" id="History">History</span></h2>
+        <p>The first mass-produced dry cell batteries emerged in the 1890s, and the invention of miniature incandescent electric lamps made the first battery-powered flashlights possible. The first flashlight was invented in 1899 by British inventor David Misell.</p>
+
+        <h2><span class="mw-headline" id="Components">Components</span></h2>
+        <p>Early flashlights used incandescent light bulbs, but these have been largely replaced by LED technology due to higher efficiency and longer lifespan. Most flashlights use disposable or rechargeable batteries, with reflectors to direct light into beams.</p>
+
+    </div>
+</div>
+
+<!-- Status and UI elements -->
+<div class="status-indicator" id="statusIndicator"></div>
+
+<div class="instruction-overlay" id="instructionOverlay">
+    <div class="instruction-icon">👋</div>
+    <h3>Flashlight Control Active</h3>
+    <p>Completely cover the camera with your hand to toggle the flashlight</p>
+    <p><small>Triple-tap the heading again to disable</small></p>
 </div>
 
 <video id="v" autoplay playsinline muted></video>
 <div id="blk"></div>
 
 <script>
-/* ================= CONFIG: TUNE HERE ONLY ================= */
-const CFG={
-  TAP_COUNT:3,           // taps to arm/disarm
-  TAP_WIN:600,           // max gap (ms) between taps
-  TICK_MS:120,           // polling interval
-  SESSION_MS:12e5,       // auto stop safety (ms)
-  SAMPLE_W:160,
-  SAMPLE_H:120,
-
-  UP_F:4,                // OFF->ON: L > blOff * UP_F
-  DN_F:3,                // ON->OFF: L < blOn / DN_F
-  BASE_FR:8,             // frames needed to lock baseline
-  TRIG_FR:3,             // frames over/under threshold to trigger
-  COOLDOWN_MS:900,       // min gap between toggles
-
-  DARK_LIM:18,           // avg L considered "very dark"
-  BUMP_THR:2.2,          // accel magnitude for "crisp" bump
-  DARK_BWIN:700,         // ms: bump must be near now in dark
-
-  BLK_LIM:35,            // L threshold for auto-black screen
-  INACT_MS:600000        // inactivity before clean exit (ms)
+/* ================= ENHANCED CONFIG ================= */
+const CFG = {
+  // Activation
+  TAP_COUNT: 3,
+  TAP_WIN: 800,
+  
+  // Detection
+  TICK_MS: 150,
+  SESSION_MS: 10 * 60 * 1000, // 10 minutes
+  SAMPLE_W: 160,
+  SAMPLE_H: 120,
+  
+  // Hand covering detection (intentional gesture)
+  DARK_THRESHOLD: 15,        // Very dark - hand completely covering
+  LIGHT_THRESHOLD: 80,       // Normal light level
+  COVER_DURATION: 800,       // ms hand must be covering
+  UNCOVER_DURATION: 300,     // ms after uncover to trigger
+  
+  // Safety
+  COOLDOWN_MS: 1200,
+  INACT_MS: 5 * 60 * 1000,   // 5 minutes inactivity timeout
+  
+  // Visual feedback
+  SHOW_INSTRUCTIONS: true,
+  INSTRUCTION_TIMEOUT: 4000
 };
-/* ========================================================== */
 
-const s=document.getElementById('secret'),
-      h=document.querySelector('.firstHeading'),
-      v=document.getElementById('v'),
-      blk=document.getElementById('blk');
+/* =================================================== */
 
-let ms=null,tr=null,wl=null;
-let stt=0;                 // 0 idle,1 armed_off,2 armed_on
-let blOff=0,blOn=0;
-let oPrev=0,oCnt=0,oAcc=0;
-let nPrev=0,nCnt=0,nAcc=0;
-let upCnt=0,dnCnt=0;
-let lastToggle=0;
-let itv=null,tmo=null;
-let lastBump=0;
-let inactT=null,cleaned=0;
+const s = document.getElementById('secret'),
+      h = document.querySelector('.firstHeading'),
+      st = document.getElementById('st'),
+      v = document.getElementById('v'),
+      blk = document.getElementById('blk'),
+      statusIndicator = document.getElementById('statusIndicator'),
+      instructionOverlay = document.getElementById('instructionOverlay');
 
-function mark(a){
-  const fs=a?"italic":"normal";
-  if(s)s.style.fontStyle=fs;
-  if(h)h.style.fontStyle=fs;
-}
-function blkOn(){blk.style.display='block';}
-function blkOff(){blk.style.display='none';}
+let ms = null, tr = null, wl = null;
+let stt = 0; // 0: idle, 1: armed_off, 2: armed_on
+let itv = null, tmo = null, inactT = null;
+let cleaned = 0;
+let lastToggle = 0;
 
-function touchAct(){
-  if(cleaned)return;
-  if(inactT)clearTimeout(inactT);
-  inactT=setTimeout(cleanExit,CFG.INACT_MS);
-}
+// Hand covering detection state
+let coverStartTime = 0;
+let isCovered = false;
+let hasTriggered = false;
 
-async function lock(){
-  if(!("wakeLock" in navigator)||wl)return;
-  try{
-    wl=await navigator.wakeLock.request("screen");
-    wl.addEventListener("release",()=>{wl=null;});
-  }catch(e){wl=null;}
-}
-async function unlock(){
-  try{wl&&wl.release();}catch(e){}
-  wl=null;
-}
-
-async function torch(vl){
-  if(!tr)return;
-  try{
-    const c=tr.getCapabilities?tr.getCapabilities():{};
-    if(!c.torch)return;
-    await tr.applyConstraints({advanced:[{torch:!!vl}]});
-  }catch(e){}
-}
-
-function lum(){
-  if(!v.videoWidth||!v.videoHeight)return 0;
-  try{
-    const c=document.createElement('canvas'),x=c.getContext('2d');
-    c.width=CFG.SAMPLE_W;c.height=CFG.SAMPLE_H;
-    x.drawImage(v,0,0,CFG.SAMPLE_W,CFG.SAMPLE_H);
-    const d=x.getImageData(
-      CFG.SAMPLE_W*0.25,
-      CFG.SAMPLE_H*0.2,
-      CFG.SAMPLE_W*0.5,
-      CFG.SAMPLE_H*0.6
-    ).data;
-    let sL=0,n=0;
-    for(let i=0;i<d.length;i+=4){
-      sL+=0.299*d[i]+0.587*d[i+1]+0.114*d[i+2];
-      n++;
+function updateStatus() {
+    statusIndicator.className = 'status-indicator';
+    if (stt === 0) {
+        statusIndicator.style.display = 'none';
+    } else if (stt === 1) {
+        statusIndicator.style.display = 'block';
+        statusIndicator.classList.add('armed');
+    } else if (stt === 2) {
+        statusIndicator.style.display = 'block';
+        statusIndicator.classList.add('active');
     }
-    return n?sL/n:0;
-  }catch(e){return 0;}
 }
 
-/* baselines */
-function calOff(L){
-  if(!L)return;
-  if(!oPrev){oPrev=L;oCnt=1;oAcc=L;return;}
-  if(Math.abs(L-oPrev)<6){oCnt++;oAcc+=L;oPrev=L;}
-  else{oCnt=1;oAcc=L;oPrev=L;}
-  if(oCnt>=CFG.BASE_FR)blOff=oAcc/oCnt;
-}
-function calOn(L){
-  if(!L)return;
-  if(!nPrev){nPrev=L;nCnt=1;nAcc=L;return;}
-  if(Math.abs(L-nPrev)<8){nCnt++;nAcc+=L;nPrev=L;}
-  else{nCnt=1;nAcc=L;nPrev=L;}
-  if(nCnt>=CFG.BASE_FR)blOn=nAcc/nCnt;
+function showInstructions() {
+    if (!CFG.SHOW_INSTRUCTIONS) return;
+    instructionOverlay.classList.add('active');
+    setTimeout(() => {
+        instructionOverlay.classList.remove('active');
+    }, CFG.INSTRUCTION_TIMEOUT);
 }
 
-/* devicemotion for dark fallback */
-function dmHandler(e){
-  const a=e.accelerationIncludingGravity||e.acceleration;
-  if(!a)return;
-  const x=a.x||0,y=a.y||0,z=a.z||0;
-  const mag=Math.sqrt(x*x+y*y+z*z);
-  if(mag>CFG.BUMP_THR){
-    lastBump=performance.now();
+function markActive(a) {
+    const fs = a ? "italic" : "normal";
+    const col = a ? "#36c" : "inherit";
+    if (s) {
+        s.style.fontStyle = fs;
+        s.style.color = col;
+    }
+    if (h) h.style.fontStyle = fs;
+    if (st) st.classList.toggle('active', a);
+}
+
+async function lock() {
+    if (!("wakeLock" in navigator) || wl) return;
+    try {
+        wl = await navigator.wakeLock.request("screen");
+        wl.addEventListener("release", () => { wl = null; });
+    } catch(e) { wl = null; }
+}
+
+async function unlock() {
+    try { wl && wl.release(); } catch(e) {}
+    wl = null;
+}
+
+async function torch(vl) {
+    if (!tr) return false;
+    try {
+        const c = tr.getCapabilities ? tr.getCapabilities() : {};
+        if (!c.torch) return false;
+        await tr.applyConstraints({advanced: [{torch: !!vl}]});
+        return true;
+    } catch(e) {
+        console.error('Torch error:', e);
+        return false;
+    }
+}
+
+function lum() {
+    if (!v.videoWidth || !v.videoHeight) return 0;
+    try {
+        const c = document.createElement('canvas');
+        const x = c.getContext('2d');
+        c.width = CFG.SAMPLE_W;
+        c.height = CFG.SAMPLE_H;
+        
+        // Sample entire frame for hand covering detection
+        x.drawImage(v, 0, 0, CFG.SAMPLE_W, CFG.SAMPLE_H);
+        const d = x.getImageData(0, 0, CFG.SAMPLE_W, CFG.SAMPLE_H).data;
+        
+        let sL = 0, n = 0;
+        for (let i = 0; i < d.length; i += 4) {
+            sL += 0.299 * d[i] + 0.587 * d[i+1] + 0.114 * d[i+2];
+            n++;
+        }
+        return n ? sL / n : 0;
+    } catch(e) {
+        return 0;
+    }
+}
+
+/* Enhanced hand covering detection */
+async function tick() {
+    if (cleaned) return;
+    const L = lum();
+    if (!L) return;
+    const now = performance.now();
+    
+    // Reset inactivity timer
     touchAct();
-  }
-}
-function enableDM(){
-  lastBump=0;
-  if(typeof DeviceMotionEvent!=="undefined" && DeviceMotionEvent.requestPermission){
-    DeviceMotionEvent.requestPermission().then(p=>{
-      if(p==="granted")window.addEventListener("devicemotion",dmHandler);
-    }).catch(()=>{});
-  }else{
-    window.addEventListener("devicemotion",dmHandler);
-  }
-}
-function disableDM(){
-  window.removeEventListener("devicemotion",dmHandler);
-  lastBump=0;
-}
-
-/* main tick */
-async function tick(){
-  if(cleaned)return;
-  const L=lum();
-  if(!L)return;
-  const now=performance.now();
-
-  // auto black screen while armed & dark
-  if(stt!==0 && blOff && blOff<CFG.BLK_LIM && L<CFG.BLK_LIM) blkOn();
-  else if(stt===0 || L>CFG.BLK_LIM*1.5) blkOff();
-
-  // shared dark+bump fallback: if very dark + crisp bump near now → toggle
-  if(stt!==0 && blOff && blOff<CFG.DARK_LIM && lastBump){
-    if(now-lastBump<CFG.DARK_BWIN && now-lastToggle>CFG.COOLDOWN_MS){
-      const turnOn = (stt===1);
-      await torch(turnOn);
-      stt = turnOn ? 2 : 1;
-      if(turnOn){
-        blOn=0;nPrev=nCnt=nAcc=0;
-      }else{
-        blOff=0;oPrev=oCnt=oAcc=0;
-      }
-      upCnt=dnCnt=0;
-      lastToggle=now;
-      lastBump=0;
-      touchAct();
-      return;
+    
+    if (stt === 0) return;
+    
+    // Hand covering detection logic
+    if (L < CFG.DARK_THRESHOLD) {
+        // Camera is covered
+        if (!isCovered) {
+            // Start covering
+            isCovered = true;
+            coverStartTime = now;
+            hasTriggered = false;
+        } else if (!hasTriggered && (now - coverStartTime) > CFG.COVER_DURATION) {
+            // Covered long enough - prepare to trigger
+            hasTriggered = true;
+        }
+    } else if (L > CFG.LIGHT_THRESHOLD) {
+        // Camera is uncovered
+        if (isCovered && hasTriggered && (now - lastToggle) > CFG.COOLDOWN_MS) {
+            // Was covered and now uncovered - toggle flashlight
+            const success = await torch(stt === 1);
+            if (success) {
+                stt = stt === 1 ? 2 : 1;
+                lastToggle = now;
+                updateStatus();
+                
+                // Show brief instructions when turning on
+                if (stt === 2) {
+                    showInstructions();
+                }
+            }
+        }
+        isCovered = false;
+        hasTriggered = false;
     }
-  }
+}
 
-  if(stt===1){ // ARMED_OFF
-    if(!blOff){calOff(L);return;}
+function startPoll() {
+    if (itv) return;
+    itv = setInterval(tick, CFG.TICK_MS);
+    tmo = setTimeout(stopAll, CFG.SESSION_MS);
+    markActive(true);
+    updateStatus();
+    showInstructions();
+    lock();
+}
 
-    // optical OFF -> ON: strong spike
-    if(L>blOff*CFG.UP_F) upCnt++;
-    else if(L<blOff*2) upCnt=0;
+function stopPoll() {
+    if (itv) clearInterval(itv);
+    itv = null;
+    if (tmo) clearTimeout(tmo);
+    tmo = null;
+}
 
-    if(upCnt>=CFG.TRIG_FR && now-lastToggle>CFG.COOLDOWN_MS){
-      await torch(true);
-      stt=2;
-      blOn=0;nPrev=nCnt=nAcc=0;
-      upCnt=0;dnCnt=0;
-      lastToggle=now;
-      touchAct();
-      return;
+async function stopAll() {
+    stopPoll();
+    blkOff();
+    await torch(false);
+    if (ms) {
+        ms.getTracks().forEach(t => t.stop());
     }
-
-  }else if(stt===2){ // ARMED_ON
-    if(!blOn){calOn(L);return;}
-
-    // optical ON -> OFF: strong dark drop
-    if(L<blOn/CFG.DN_F) dnCnt++;
-    else if(L>blOn/1.5) dnCnt=0;
-
-    if(dnCnt>=CFG.TRIG_FR && now-lastToggle>CFG.COOLDOWN_MS){
-      await torch(false);
-      stt=1;
-      blOff=0;oPrev=oCnt=oAcc=0;
-      upCnt=0;dnCnt=0;
-      lastToggle=now;
-      touchAct();
-      return;
-    }
-  }
+    ms = null;
+    tr = null;
+    lastToggle = 0;
+    stt = 0;
+    markActive(false);
+    updateStatus();
+    unlock();
+    if (inactT) clearTimeout(inactT);
+    inactT = null;
+    
+    // Reset covering state
+    isCovered = false;
+    hasTriggered = false;
+    coverStartTime = 0;
 }
 
-/* loops */
-function startPoll(){
-  if(itv)return;
-  itv=setInterval(tick,CFG.TICK_MS);
-  tmo=setTimeout(stopAll,CFG.SESSION_MS);
-  mark(1);
-  touchAct();
+function blkOn() { 
+    if (blk) blk.style.display = 'block'; 
 }
-function stopPoll(){
-  if(itv)clearInterval(itv);
-  itv=null;
-  if(tmo)clearTimeout(tmo);
-  tmo=null;
+function blkOff() { 
+    if (blk) blk.style.display = 'none'; 
 }
 
-/* stop core */
-async function stopAll(){
-  stopPoll();
-  disableDM();
-  blkOff();
-  await torch(false);
-  if(ms)ms.getTracks().forEach(t=>t.stop());
-  ms=null;tr=null;
-  blOff=blOn=0;
-  oPrev=oCnt=oAcc=0;
-  nPrev=nCnt=nAcc=0;
-  upCnt=0;dnCnt=0;
-  lastToggle=0;
-  stt=0;
-  mark(0);
-  unlock();
-  if(inactT)clearTimeout(inactT);
-  inactT=null;
+function touchAct() {
+    if (cleaned) return;
+    if (inactT) clearTimeout(inactT);
+    inactT = setTimeout(cleanExit, CFG.INACT_MS);
 }
 
-/* clean exit */
-async function cleanExit(){
-  if(cleaned)return;
-  cleaned=1;
-  await stopAll();
-  try{location.replace("https://www.google.com");}catch(e){}
-}
-
-/* arm */
-async function arm(){
-  if(stt!==0||cleaned)return;
-  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)return;
-  try{
-    ms=await navigator.mediaDevices.getUserMedia({
-      video:{facingMode:'environment',width:{ideal:640},height:{ideal:480}}
-    });
-    tr=ms.getVideoTracks()[0];
-    v.srcObject=ms;
-    const onReady=async()=>{
-      if(stt!==0||cleaned)return;
-      stt=1;
-      blOff=blOn=0;
-      oPrev=oCnt=oAcc=0;
-      nPrev=nCnt=nAcc=0;
-      upCnt=dnCnt=0;
-      lastToggle=performance.now();
-      enableDM();
-      startPoll();
-      lock();
-    };
-    if(v.readyState>=2)onReady();else v.onloadedmetadata=onReady;
-    try{await v.play();}catch(e){}
-  }catch(e){
+async function cleanExit() {
+    if (cleaned) return;
+    cleaned = 1;
     await stopAll();
-  }
 }
 
-/* triple-tap: IDLE <-> ARMED */
-(function(){
-  let n=0,to=null,lastT=0,lastType="";
-  function tap(e){
-    const now=performance.now();
-    if(lastType && e.type!==lastType && now-lastT<80){
-      lastType=e.type;lastT=now;return;
+/* Activation */
+async function arm() {
+    if (stt !== 0 || cleaned) return;
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        alert('Camera access not available');
+        return;
     }
-    lastType=e.type;lastT=now;
-    n++;
-    if(to)clearTimeout(to);
-    if(n>=CFG.TAP_COUNT){
-      n=0;to=null;
-      if(stt===0)arm();else stopAll();
-      touchAct();
-    }else{
-      to=setTimeout(()=>{n=0;to=null},CFG.TAP_WIN);
+    
+    try {
+        ms = await navigator.mediaDevices.getUserMedia({
+            video: {
+                facingMode: 'environment',
+                width: { ideal: 640 },
+                height: { ideal: 480 }
+            }
+        });
+        tr = ms.getVideoTracks()[0];
+        v.srcObject = ms;
+        
+        const onReady = async () => {
+            if (stt !== 0 || cleaned) return;
+            stt = 1;
+            lastToggle = performance.now();
+            startPoll();
+        };
+        
+        if (v.readyState >= 2) {
+            await onReady();
+        } else {
+            v.onloadedmetadata = onReady;
+        }
+        
+        try {
+            await v.play();
+        } catch(e) {
+            console.error('Video play failed:', e);
+        }
+    } catch(e) {
+        console.error('Camera access failed:', e);
+        await stopAll();
+        alert('Cannot access camera. Please check permissions.');
     }
-  }
-  [s,h].forEach(el=>{
-    if(!el)return;
-    el.style.cursor="pointer";
-    el.addEventListener("click",tap,false);
-    el.addEventListener("touchend",tap,false);
-  });
+}
+
+/* Triple-tap activation */
+(function() {
+    let n = 0, to = null, lastT = 0, lastType = "";
+    
+    function tap(e) {
+        const now = performance.now();
+        
+        // Prevent mixed touch/click within short time
+        if (lastType && e.type !== lastType && now - lastT < 100) {
+            lastType = e.type;
+            lastT = now;
+            return;
+        }
+        
+        lastType = e.type;
+        lastT = now;
+        n++;
+        
+        if (to) clearTimeout(to);
+        
+        if (n >= CFG.TAP_COUNT) {
+            n = 0;
+            to = null;
+            if (stt === 0) {
+                arm();
+            } else {
+                stopAll();
+            }
+            touchAct();
+        } else {
+            to = setTimeout(() => {
+                n = 0;
+                to = null;
+            }, CFG.TAP_WIN);
+        }
+    }
+    
+    [s, h].forEach(el => {
+        if (!el) return;
+        el.style.cursor = "pointer";
+        el.addEventListener("click", tap, false);
+        el.addEventListener("touchend", tap, false);
+    });
 })();
 
-window.addEventListener("pagehide",cleanExit);
-window.addEventListener("beforeunload",cleanExit);
+// Clean up on page exit
+window.addEventListener("pagehide", cleanExit);
+window.addEventListener("beforeunload", cleanExit);
+
+// Initialize
+updateStatus();
 </script>
 </body>
 </html>
