@@ -1,61 +1,243 @@
 <!doctype html>
-<html>
+<html class="client-js vector-feature-language-in-header-enabled vector-feature-language-in-main-page-header-disabled vector-feature-sticky-header-disabled vector-feature-page-tools-pinned-disabled vector-feature-toc-pinned-enabled vector-feature-main-menu-pinned-disabled vector-feature-limited-width-enabled vector-feature-limited-width-content-enabled vector-feature-custom-font-size-enabled vector-feature-appearance-disabled vector-feature-appearance-pinned-disabled vector-feature-night-mode-disabled skin-theme-clientpref-night" lang="en" dir="ltr">
+<head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Flashlight — Encyclopedia</title>
+<title>Flashlight - Wikipedia</title>
 <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
-*{touch-action:manipulation}
-body{font-family:"Noto Serif",Georgia,serif;background:#fff;color:#111;margin:0}
-.container{max-width:760px;padding:12px;margin:0 auto}
-.header{display:flex;gap:12px;align-items:center;padding:8px 0}
-.logo{width:44px;height:44px;border-radius:6px;background:#eef1f4;display:flex;align-items:center;justify-content:center;font-weight:700;color:#2b2f33}
-.h1{font-size:1.35rem;margin:0;font-weight:700;display:flex;align-items:center;gap:6px}
-#st{width:6px;height:6px;border-radius:6px;background:#c5cdd6;opacity:.25;transition:.25s}
-#secret{cursor:pointer;transition:.25s}
-.lead{color:#222;font-size:.95rem;margin:.4rem 0}
-.infobox{border:1px solid #d6d9dc;padding:.6rem;border-radius:6px;background:#fbfcfd;margin:8px 0;transition:.25s}
-.infobox.active{border-color:#d6d9dc;background:#fbfcfd}
-figure img{max-width:100%;height:auto;border-radius:6px}
-figcaption,.caption{font-size:.85rem;color:#666;margin-top:.25rem}
-#v{position:fixed;left:-9999px;width:160px;height:120px;opacity:0;pointer-events:none}
-#blk{position:fixed;inset:0;background:#000;display:none;z-index:9999;pointer-events:none}
-@media(max-width:420px){.h1{font-size:1.1rem}}
+/* Wikipedia-style CSS */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Lato, Helvetica, Arial, sans-serif;
+    font-size: 0.875rem;
+    line-height: 1.6;
+    color: #202122;
+    background-color: #fff;
+    margin: 0;
+    padding: 0;
+}
+
+.mw-body {
+    margin-left: 10em;
+    padding: 1em 1.5em 1.5em 1.5em;
+}
+
+.mw-body-header {
+    border-bottom: 1px solid #a2a9b1;
+    margin-bottom: 1em;
+}
+
+.firstHeading {
+    font-family: 'Linux Libertine', 'Georgia', 'Times', serif;
+    border-bottom: 1px solid #a2a9b1;
+    font-weight: normal;
+    margin: 0;
+    padding-bottom: 0.25em;
+}
+
+.infobox {
+    border: 1px solid #a2a9b1;
+    border-spacing: 3px;
+    background-color: #f8f9fa;
+    color: black;
+    margin: 0.5em 0 0.5em 1em;
+    padding: 0.2em;
+    float: right;
+    clear: right;
+    font-size: 88%;
+    line-height: 1.5em;
+    width: 22em;
+}
+
+.infobox caption {
+    font-size: 125%;
+    font-weight: bold;
+    padding: 0.2em;
+    text-align: center;
+}
+
+.infobox th, .infobox td {
+    vertical-align: top;
+    text-align: left;
+    padding: 0.2em 0.4em;
+}
+
+.infobox tr:first-child th {
+    text-align: center;
+}
+
+.hatnote {
+    font-style: italic;
+    padding: 0.2em 0;
+    margin-bottom: 0.5em;
+}
+
+.mw-parser-output h2 {
+    font-family: 'Linux Libertine', 'Georgia', 'Times', serif;
+    border-bottom: 1px solid #a2a9b1;
+    font-weight: normal;
+    margin: 1em 0 0.25em 0;
+    padding: 0;
+}
+
+.toc {
+    display: table;
+    border: 1px solid #a2a9b1;
+    background-color: #f8f9fa;
+    font-size: 95%;
+    padding: 7px;
+    margin: 0 0 1em 1em;
+}
+
+.toctitle {
+    text-align: center;
+}
+
+/* Interactive elements (preserved from original) */
+#secret, .firstHeading {
+    cursor: pointer;
+    transition: .25s;
+}
+
+#st {
+    width: 6px;
+    height: 6px;
+    border-radius: 6px;
+    background: #c5cdd6;
+    opacity: .25;
+    transition: .25s;
+}
+
+#v {
+    position: fixed;
+    left: -9999px;
+    width: 160px;
+    height: 120px;
+    opacity: 0;
+    pointer-events: none;
+}
+
+#blk {
+    position: fixed;
+    inset: 0;
+    background: #000;
+    display: none;
+    z-index: 9999;
+    pointer-events: none;
+}
+
+.vector-header-container {
+    border-bottom: 1px solid #a2a9b1;
+    background: #f8f9fa;
+}
+
+.vector-header {
+    max-width: 99.75em;
+    margin: 0 auto;
+    padding: 0.5em 1.5em;
+}
+
+.vector-logo {
+    font-weight: bold;
+    font-size: 1.5em;
+}
 </style>
+</head>
 <body>
-<div class="container" role="main">
-  <div class="header">
-    <div class="logo" aria-hidden="true">E</div>
-    <div>
-      <div class="h1">Flashlight<span id="st"></span></div>
-      <div style="font-size:.82rem;color:#666">Portable hand-held illumination</div>
+<div class="vector-header-container">
+    <header class="vector-header">
+        <div class="vector-logo">Wikipedia<span style="font-size: 0.7em; margin-left: 5px;">The Free Encyclopedia</span></div>
+    </header>
+</div>
+
+<div class="mw-body">
+    <div class="mw-body-header">
+        <h1 class="firstHeading">Flashlight<span id="st"></span></h1>
     </div>
-  </div>
-  <div class="lead">
-    A <em>flashlight</em> (also called a torch) is a portable hand-held electric light.
-  </div>
-  <div class="infobox" id="ibox">
-    <strong>Quick facts</strong>
-    <p>Modern flashlights use LEDs, batteries, reflectors and lenses.</p>
-  </div>
-  <figure>
-    <img src="https://images.unsplash.com/photo-1518779578993-ec3579fee39f?w=1200&q=70&auto=format&fit=crop" alt="LED flashlight">
-    <figcaption>Typical modern LED flashlight.</figcaption>
-  </figure>
-  <p>
-    The <span id="secret">Flashlight</span> has evolved from incandescent bulbs to efficient LEDs.
-    Some devices allow the browser to control the rear torch while the camera is active.
-  </p>
-  <h2>Design</h2>
-  <p>
-    Flashlights contain a light source, power supply and a switch. In certain supported mobile browsers,
-    camera input can be used to drive subtle interactive effects.
-  </p>
-  <div class="caption">
-    Triple-tap “Flashlight” (heading or inline) to arm. Phone face-down → screen goes black. Use light/cover or firm tap to toggle.
-  </div>
+
+    <div class="mw-content-container">
+        <div role="note" class="hatnote">For other uses, see <a href="/wiki/Flashlight_(disambiguation)" title="Flashlight (disambiguation)">Flashlight (disambiguation)</a>.</div>
+
+        <table class="infobox">
+            <caption>Flashlight</caption>
+            <tbody>
+                <tr>
+                    <td colspan="2" style="text-align: center">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/3x_AA_to_D_battery_converter%2C_MY_DAY_vintage_flashlight%2C_Sofirn_SP36_flashlight.jpg/500px-3x_AA_to_D_battery_converter%2C_MY_DAY_vintage_flashlight%2C_Sofirn_SP36_flashlight.jpg" alt="LED flashlight" style="width: 200px;">
+                        <div style="font-size: 0.8em; color: #54595d; margin-top: 5px;">Typical modern LED flashlight</div>
+                    </td>
+                </tr>
+                <tr>
+                    <th>Other names</th>
+                    <td>Electric torch</td>
+                </tr>
+                <tr>
+                    <th>Classification</th>
+                    <td>Portable hand-held electric light</td>
+                </tr>
+                <tr>
+                    <th>Uses</th>
+                    <td>Illumination, emergency, outdoor</td>
+                </tr>
+                <tr>
+                    <th>Invented</th>
+                    <td>1899</td>
+                </tr>
+                <tr>
+                    <th>Related items</th>
+                    <td>Lantern, headlamp</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="mw-parser-output">
+            <p>A <b>flashlight</b> <span id="secret">(US)</span> or <b>electric torch</b> (CE), usually shortened to <b>torch</b>, is a portable hand-held electric lamp. Formerly, the light source typically was a miniature incandescent light bulb, but these have been displaced by light-emitting diodes (LEDs) since the early 2000s. A typical flashlight consists of the light source mounted in a reflector, a transparent cover (sometimes combined with a lens) to protect the light source and reflector, a battery, and a switch, all enclosed in a case.</p>
+
+            <p>The invention of the dry cell and miniature incandescent electric lamps made the first battery-powered flashlights possible around 1899. Today, flashlights use mostly light-emitting diodes and run on disposable or rechargeable batteries. Some are powered by the user turning a crank, shaking the lamp, or squeezing it. Some have solar panels to recharge the battery. Flashlights are used as a light source outdoors, in places without permanently installed lighting, during power outages, or when a portable light source is needed.</p>
+
+            <p>In addition to the general-purpose, hand-held flashlight, many forms have been adapted for special uses. Head- or helmet-mounted flashlights designed for miners and campers leave both hands free. Some flashlights can be used under water or in flammable atmospheres.</p>
+
+            <div class="toc">
+                <div class="toctitle">Contents</div>
+                <ul>
+                    <li><a href="#History">1 History</a></li>
+                    <li><a href="#Components">2 Components</a>
+                    <ul>
+                        <li><a href="#Light_sources">2.1 Light sources</a></li>
+                        <li><a href="#Power_sources">2.2 Power sources</a></li>
+                        <li><a href="#Reflectors_and_lenses">2.3 Reflectors and lenses</a></li>
+                    </ul>
+                    </li>
+                    <li><a href="#Types_and_specialized_designs">3 Types and specialized designs</a></li>
+                    <li><a href="#Applications">4 Applications</a></li>
+                </ul>
+            </div>
+
+            <h2><span id="History">History</span></h2>
+            <p>The first mass-produced dry cell batteries emerged in the 1890s, and the invention of miniature incandescent electric lamps made the first battery-powered flashlights possible. The first flashlight was invented in 1899 by British inventor David Misell.</p>
+
+            <h2><span id="Components">Components</span></h2>
+            <h3><span id="Light_sources">Light sources</span></h3>
+            <p>Early flashlights used incandescent light bulbs, but these have been largely replaced by LED technology due to higher efficiency and longer lifespan.</p>
+
+            <h3><span id="Power_sources">Power sources</span></h3>
+            <p>Most flashlights use disposable or rechargeable batteries. Some specialized models use alternative power sources such as hand cranks or solar panels.</p>
+
+            <h3><span id="Reflectors_and_lenses">Reflectors and lenses</span></h3>
+            <p>Reflectors help direct the light into a beam, while lenses protect the light source and can focus the beam.</p>
+
+            <h2><span id="Types_and_specialized_designs">Types and specialized designs</span></h2>
+            <p>Various specialized flashlight designs include headlamps, underwater lights, and explosion-proof models for hazardous environments.</p>
+
+            <h2><span id="Applications">Applications</span></h2>
+            <p>Flashlights are used for outdoor activities, emergency situations, professional work in dark environments, and general household use.</p>
+
+            <div style="font-size: 0.8rem; color: #54595d; margin-top: 2em; padding-top: 1em; border-top: 1px solid #eaecf0;">
+                <strong>Interactive note:</strong> Triple-tap "Flashlight" (heading or inline) to arm. Phone face-down → screen goes black. Use light/cover or firm tap to toggle.
+            </div>
+        </div>
+    </div>
 </div>
 
 <video id="v" autoplay playsinline muted></video>
@@ -87,7 +269,7 @@ const CFG={
 /* ========================================================== */
 
 const s=document.getElementById('secret'),
-      h=document.querySelector('.h1'),
+      h=document.querySelector('.firstHeading'),
       v=document.getElementById('v'),
       blk=document.getElementById('blk');
 
