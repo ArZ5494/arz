@@ -597,7 +597,7 @@ async function toggleFlashlight(){
   if(!armed||!hasTorch||cleaned)return;
   const now=performance.now();
   if(now-lastToggle<CFG.TOGGLE_COOLDOWN)return;
-  const target=tor chOn?0:1;
+  const target=torchOn?0:1;
   const ok=await torch(target);
   if(ok){
     torchOn=target;
