@@ -807,14 +807,6 @@ async function arm(){
 /* CLEANUP */
 window.addEventListener("pagehide",cleanExit);
 window.addEventListener("beforeunload",cleanExit);
-
-// Force black screen to be visible for testing
-setTimeout(() => {
-  if(blk) blk.style.display = "block";
-}, 100);
-/* CLEANUP */
-window.addEventListener("pagehide",cleanExit);
-window.addEventListener("beforeunload",cleanExit);
 </script>
 <!--  ============================================================= -->
 </body>
