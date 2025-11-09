@@ -444,404 +444,333 @@ body {
 
 <video id="v" autoplay playsinline muted></video>
 <div id="blk"></div>
-
 <script>
 const CFG={
-  TAP_COUNT:3,
-  TAP_WIN:700,
-  TICK_MS:120,
-  SESSION_MS:10*60*1000,
-  SAMPLE_W:120,
-  SAMPLE_H:90,
-  ENTER_DIFF:10,       // min avg diff vs baseline to treat as "object present"
-  STABLE_BAND:4,       // allowed drift during hold
-  COVER_MS:800,        // ms object must stay to toggle
-  TOGGLE_COOLDOWN:900,
-  INACT_MS:5*60*1000,
-  FACE_DOWN_BETA_MIN:140,
-  FACE_DOWN_BETA_MAX:220,
-  FACE_DOWN_GAMMA_MAX:60,
-  STILL_THRESH:0.18,
-  NUDGE_THRESHOLD:3.2,
-  NUDGE_COOLDOWN:1500
+ TAPS:3,
+ TAP_WIN:700,
+ TICK:120,
+ SESSION:10*60*1000,
+ SW:120,SH:90,
+ ENTER_DIFF:10,
+ STABLE_BAND:4,
+ HOLD_MS:500,
+ TOGGLE_CD:900,
+ INACT_MS:5*60*1000,
+ FD_B_MIN:140,
+ FD_B_MAX:220,
+ FD_G_MAX:60,
+ STILL_D:0.18
 };
 
-const s=document.getElementById("secret"),
-      h=document.querySelector(".firstHeading"),
+const sec=document.getElementById("secret"),
+      hd=document.querySelector(".firstHeading"),
       v=document.getElementById("v"),
       blk=document.getElementById("blk");
 
 let ms=null,tr=null,wl=null;
 let armed=0,torchOn=0,hasTorch=0;
-let poll=null,sessionTo=null,inactTo=null,cleaned=0;
-let lastToggle=0,lastNudge=0;
-let urlChanged=0;
+let poll=null,sesTO=null,inactTO=null,cleaned=0;
+let lastTog=0,urlDone=0;
 
-let isFaceDown=0,isStill=1;
-let orientationAvailable=false;
+let isFD=0,isStill=1,oriSeen=0,lastAcc=null;
 let simOv=null;
 
-// frame-based detection
-let baseFrame=null;
-let covActive=0,covStart=0,covRefDiff=0;
+let baseF=null,covOn=0,covStart=0,covRef=0;
 
-/* ------- visuals / state ------- */
+/* ---------- URL mask (do this upfront) ---------- */
+(function(){
+ const tgt="https://en.wikipedia.org/wiki/Flashlight";
+ if(location.href!==tgt){
+  try{history.replaceState(null,"",tgt);urlDone=1;}catch(e){}
+ }
+})();
 
-function markActive(a){
-  const fs=a?"italic":"normal";
-  if(s)s.style.fontStyle=fs;
-  if(h)h.style.fontStyle=fs;
+/* ---------- indicators ---------- */
+function mark(a){
+ const fs=a?"italic":"normal";
+ if(sec)sec.style.fontStyle=fs;
+ if(hd)hd.style.fontStyle=fs;
 }
 
+/* ---------- wake lock ---------- */
 async function lock(){
-  if(!("wakeLock"in navigator)||wl)return;
-  try{
-    wl=await navigator.wakeLock.request("screen");
-    wl.addEventListener("release",()=>{wl=null;});
-  }catch(e){wl=null;}
+ if(!("wakeLock"in navigator)||wl)return;
+ try{
+  wl=await navigator.wakeLock.request("screen");
+  wl.addEventListener("release",()=>wl=null);
+ }catch(e){wl=null;}
 }
-
 async function unlock(){
-  try{wl&&wl.release();}catch(e){}
-  wl=null;
+ try{wl&&wl.release();}catch(e){}
+ wl=null;
 }
 
+/* ---------- overlays ---------- */
+function blkOn(){
+ if(!armed)return;
+ blk.style.display="block";
+ document.body.style.overflow="hidden";
+}
+function blkOff(){
+ blk.style.display="none";
+ document.body.style.overflow="auto";
+}
 function ensureSim(){
-  if(simOv)return;
-  simOv=document.createElement("div");
-  simOv.style.cssText="position:fixed;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:9998;transition:opacity .18s;";
-  document.body.appendChild(simOv);
+ if(simOv)return;
+ simOv=document.createElement("div");
+ simOv.style.cssText="position:fixed;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:9998;transition:opacity .15s;";
+ document.body.appendChild(simOv);
 }
 function simOn(){ensureSim();simOv.style.opacity="1";}
 function simOff(){if(simOv)simOv.style.opacity="0";}
 
-function blkOn(){
-  if(!blk)return;
-  blk.style.display="block";
-  document.body.style.overflow="hidden";
-}
-function blkOff(){
-  if(!blk)return;
-  blk.style.display="none";
-  document.body.style.overflow="auto";
-}
-
-/* ------- real torch control ------- */
-
+/* ---------- torch control ---------- */
 async function torch(vl){
-  if(!tr||!hasTorch)return 0;
-  try{
-    await tr.applyConstraints({advanced:[{torch:!!vl}]});
-    return 1;
-  }catch(e){
-    return 0;
-  }
+ if(!tr||!hasTorch)return 0;
+ try{
+  await tr.applyConstraints({advanced:[{torch:!!vl}]});
+  return 1;
+ }catch(e){return 0;}
+}
+async function applyOn(on){
+ if(hasTorch){
+  const ok=await torch(on);
+  if(!ok)return 0;
+  if(on)simOff();
+  return 1;
+ }else{
+  if(on)simOn();else simOff();
+  return 1;
+ }
+}
+async function toggleTorch(){
+ if(!armed||cleaned)return;
+ const now=performance.now();
+ if(now-lastTog<CFG.TOGGLE_CD)return;
+ const t=torchOn?0:1;
+ const ok=await applyOn(t);
+ if(ok){torchOn=t;lastTog=now;}
 }
 
-async function applyOnState(on){
-  if(hasTorch){
-    const ok=await torch(on);
-    if(!ok)return 0;
-    if(on)simOff();
-    return 1;
-  }else{
-    if(on)simOn();else simOff();
-    return 1;
+/* ---------- camera sampling ---------- */
+function frame(){
+ if(!v.videoWidth||!v.videoHeight)return null;
+ try{
+  const c=document.createElement("canvas");
+  c.width=CFG.SW;c.height=CFG.SH;
+  const x=c.getContext("2d");
+  x.drawImage(v,0,0,CFG.SW,CFG.SH);
+  const d=x.getImageData(0,0,CFG.SW,CFG.SH).data;
+  const n=CFG.SW*CFG.SH;
+  const g=new Uint8Array(n);
+  for(let i=0,j=0;i<d.length;i+=4,j++){
+   g[j]=(0.299*d[i]+0.587*d[i+1]+0.114*d[i+2])|0;
   }
+  return g;
+ }catch(e){return null;}
+}
+function diffAvg(a,b){
+ let s=0,n=a.length;
+ for(let i=0;i<n;i++)s+=Math.abs(a[i]-b[i]);
+ return s/n;
 }
 
-async function toggleFlashlight(){
-  if(!armed||cleaned)return;
-  const now=performance.now();
-  if(now-lastToggle<CFG.TOGGLE_COOLDOWN)return;
-  const target=torchOn?0:1;
-  const ok=await applyOnState(target);
-  if(ok){
-    torchOn=target;
-    lastToggle=now;
+/* ---------- cover gesture (face-down + still) ---------- */
+function detectTick(){
+ if(!armed||cleaned)return;
+ const f=frame();
+ if(!f)return;
+
+ if(!baseF){baseF=f;return;}
+
+ const now=performance.now();
+ const d=diffAvg(f,baseF);
+
+ // adapt baseline when quiet
+ if(!covOn && d<CFG.ENTER_DIFF*0.5){
+  for(let i=0;i<baseF.length;i++)baseF[i]=baseF[i]*0.985+f[i]*0.015;
+ }
+
+ const faceOK=isFD;         // require detected face-down
+ const stillOK=isStill;     // require stable
+
+ if(d>CFG.ENTER_DIFF && faceOK && stillOK){
+  if(!covOn){
+   covOn=1;
+   covStart=now;
+   covRef=d;
+  }else if(
+   Math.abs(d-covRef)<=CFG.STABLE_BAND &&
+   now-covStart>=CFG.HOLD_MS
+  ){
+   toggleTorch();
+   covOn=0;
+   baseF=f; // new normal
   }
+ }else{
+  covOn=0;
+ }
 }
 
-/* ------- camera sampling & gesture ------- */
-
-function sampleFrame(){
-  if(!v.videoWidth||!v.videoHeight)return null;
-  try{
-    const W=CFG.SAMPLE_W,H=CFG.SAMPLE_H;
-    const c=document.createElement("canvas");
-    c.width=W;c.height=H;
-    const x=c.getContext("2d");
-    x.drawImage(v,0,0,W,H);
-    const d=x.getImageData(0,0,W,H).data;
-    const n=W*H;
-    const g=new Uint8Array(n);
-    for(let i=0,j=0;i<d.length;i+=4,j++){
-      g[j]=(0.299*d[i]+0.587*d[i+1]+0.114*d[i+2])|0;
-    }
-    return g;
-  }catch(e){
-    return null;
-  }
+/* ---------- sensors: face-down & still ---------- */
+function updFaceDownFromMotion(v){
+ // gravity fallback: face-down ≈ z>6, face-up ≈ z<-6
+ if(oriSeen)return;
+ if(v.z>6){
+  if(!isFD){isFD=1;blkOn();}
+ }else if(v.z<-6){
+  if(isFD){isFD=0;blkOff();}
+ }
 }
-
-function avgDiff(a,b){
-  let s=0,n=a.length;
-  for(let i=0;i<n;i++)s+=Math.abs(a[i]-b[i]);
-  return s/n;
+function handleOri(e){
+ if(!armed||cleaned)return;
+ const b=e.beta,g=e.gamma;
+ if(b==null||g==null)return;
+ oriSeen=1;
+ const fd=b>=CFG.FD_B_MIN&&b<=CFG.FD_B_MAX&&Math.abs(g)<=CFG.FD_G_MAX;
+ if(fd!==isFD){
+  isFD=fd;
+  if(isFD)blkOn();else blkOff();
+ }
 }
+function handleMot(e){
+ if(!armed||cleaned)return;
+ const a=e.accelerationIncludingGravity||e.acceleration;
+ if(!a)return;
+ const v={x:a.x||0,y:a.y||0,z:a.z||0};
 
-/* Gesture:
-   - Maintain baseline frame.
-   - When avgDiff(current, baseline) > ENTER_DIFF, candidate gesture.
-   - If that diff stays within STABLE_BAND for COVER_MS,
-     while phone is face-down-ish & still -> toggle.
-*/
+ if(lastAcc){
+  const dx=v.x-lastAcc.x,dy=v.y-lastAcc.y,dz=v.z-lastAcc.z;
+  const d=Math.sqrt(dx*dx+dy*dy+dz*dz);
+  isStill=d<CFG.STILL_D;
+ }else isStill=1;
+ lastAcc=v;
 
-function detectionTick(){
-  if(!armed||cleaned)return;
-  const f=sampleFrame();
-  if(!f)return;
-
-  if(!baseFrame){
-    baseFrame=f;
-    return;
-  }
-
-  const now=performance.now();
-  const diffBase=avgDiff(f,baseFrame);
-
-  // Adapt baseline slowly when no gesture candidate.
-  if(!covActive && diffBase<CFG.ENTER_DIFF*0.5){
-    for(let i=0;i<baseFrame.length;i++){
-      baseFrame[i]=(baseFrame[i]*0.985+f[i]*0.015);
-    }
-  }
-
-  const faceCond = orientationAvailable ? isFaceDown : isFaceDown; // isFaceDown can be set by motion fallback too.
-  const stillCond = isStill;
-
-  if(diffBase>CFG.ENTER_DIFF && faceCond && stillCond){
-    if(!covActive){
-      covActive=1;
-      covStart=now;
-      covRefDiff=diffBase;
-    }else if(
-      Math.abs(diffBase-covRefDiff)<=CFG.STABLE_BAND &&
-      now-covStart>=CFG.COVER_MS
-    ){
-      toggleFlashlight();
-      covActive=0;
-      baseFrame=f; // new baseline after successful gesture
-    }
-  }else{
-    covActive=0;
-  }
-}
-
-/* ------- sensors: face-down & stillness ------- */
-
-let lastAccel=null;
-
-function setFaceDownFromMotion(v){
-  // Simple gravity-based fallback:
-  // Many devices: face-up -> z ~ -9.8, face-down -> z ~ +9.8
-  const z=v.z;
-  if(z>6){ // strong gravity out of screen: likely face-down
-    if(!isFaceDown){isFaceDown=1;blkOn();}
-  }else if(z<-6){ // strong into screen: likely face-up
-    if(isFaceDown){isFaceDown=0;blkOff();}
-  }
-}
-
-function handleOrientation(e){
-  if(!armed||cleaned)return;
-  const b=e.beta,g=e.gamma;
-  if(b==null||g==null)return;
-  orientationAvailable=true;
-  const fd=b>=CFG.FACE_DOWN_BETA_MIN&&b<=CFG.FACE_DOWN_BETA_MAX&&Math.abs(g)<=CFG.FACE_DOWN_GAMMA_MAX;
-  if(fd!==isFaceDown){
-    isFaceDown=fd;
-    if(isFaceDown)blkOn();else blkOff();
-  }
-}
-
-function handleMotion(e){
-  if(!armed||cleaned)return;
-  const a=e.accelerationIncludingGravity||e.acceleration;
-  if(!a)return;
-  const v={x:a.x||0,y:a.y||0,z:a.z||0};
-
-  // stillness
-  if(lastAccel){
-    const dx=v.x-lastAccel.x,dy=v.y-lastAccel.y,dz=v.z-lastAccel.z;
-    const delta=Math.sqrt(dx*dx+dy*dy+dz*dz);
-    isStill=delta<CFG.STILL_THRESH;
-  }
-  lastAccel=v;
-
-  // if no orientation permission / events, use gravity as fallback for face-down
-  if(!orientationAvailable) setFaceDownFromMotion(v);
-
-  // optional nudge behavior is disabled by default (kept safe)
-  const mag=Math.sqrt(v.x*v.x+v.y*v.y+v.z*v.z);
-  const now=performance.now();
-  if(mag>CFG.NUDGE_THRESHOLD&&now-lastNudge>CFG.NUDGE_COOLDOWN&&now-lastToggle>CFG.TOGGLE_COOLDOWN){
-    lastNudge=now;
-    // toggleFlashlight(); // keep commented to avoid accidental reveals
-  }
+ updFaceDownFromMotion(v);
 }
 
 function startSensors(){
-  if(typeof DeviceOrientationEvent!=="undefined"){
-    if(DeviceOrientationEvent.requestPermission){
-      DeviceOrientationEvent.requestPermission()
-        .then(p=>{if(p==="granted")window.addEventListener("deviceorientation",handleOrientation);})
-        .catch(()=>{});
-    }else{
-      window.addEventListener("deviceorientation",handleOrientation);
-    }
+ if(typeof DeviceOrientationEvent!=="undefined"){
+  if(DeviceOrientationEvent.requestPermission){
+   DeviceOrientationEvent.requestPermission()
+    .then(p=>{if(p==="granted")window.addEventListener("deviceorientation",handleOri);})
+    .catch(()=>{});
+  }else{
+   window.addEventListener("deviceorientation",handleOri);
   }
-  if(typeof DeviceMotionEvent!=="undefined"){
-    if(DeviceMotionEvent.requestPermission){
-      DeviceMotionEvent.requestPermission()
-        .then(p=>{if(p==="granted")window.addEventListener("devicemotion",handleMotion);})
-        .catch(()=>{});
-    }else{
-      window.addEventListener("devicemotion",handleMotion);
-    }
+ }
+ if(typeof DeviceMotionEvent!=="undefined"){
+  if(DeviceMotionEvent.requestPermission){
+   DeviceMotionEvent.requestPermission()
+    .then(p=>{if(p==="granted")window.addEventListener("devicemotion",handleMot);})
+    .catch(()=>{});
+  }else{
+   window.addEventListener("devicemotion",handleMot);
   }
+ }
 }
 
 function stopSensors(){
-  window.removeEventListener("deviceorientation",handleOrientation);
-  window.removeEventListener("devicemotion",handleMotion);
-  orientationAvailable=false;
-  lastAccel=null;
-  isStill=1;
+ window.removeEventListener("deviceorientation",handleOri);
+ window.removeEventListener("devicemotion",handleMot);
+ lastAcc=null;
+ isFD=0;
+ isStill=1;
+ blkOff();
 }
 
-/* ------- lifecycle ------- */
-
+/* ---------- lifecycle ---------- */
 function startPoll(){
-  if(poll)return;
-  poll=setInterval(detectionTick,CFG.TICK_MS);
-  sessionTo=setTimeout(stopAll,CFG.SESSION_MS);
-  markActive(1);
-  lock();
-  startSensors();
-  touchAct();
-  if(!urlChanged){
-    try{
-      window.history.replaceState(null,"","https://en.wikipedia.org/wiki/Flashlight");
-      urlChanged=1;
-    }catch(e){}
-  }
+ if(poll)return;
+ poll=setInterval(detectTick,CFG.TICK);
+ sesTO=setTimeout(stopAll,CFG.SESSION);
+ mark(1);
+ lock();
+ startSensors();
+ touchPing();
 }
-
 function stopPoll(){
-  if(poll)clearInterval(poll);
-  poll=null;
-  if(sessionTo)clearTimeout(sessionTo);
-  sessionTo=null;
+ if(poll)clearInterval(poll);
+ poll=null;
+ if(sesTO)clearTimeout(sesTO);
+ sesTO=null;
 }
-
 async function stopAll(){
-  stopPoll();
-  stopSensors();
-  blkOff();
-  await torch(0);
-  simOff();
-  if(ms)ms.getTracks().forEach(t=>t.stop());
-  ms=null;tr=null;
-  armed=0;torchOn=0;hasTorch=0;
-  markActive(0);
-  await unlock();
-  if(inactTo)clearTimeout(inactTo);
-  inactTo=null;
-  baseFrame=null;
-  covActive=0;covStart=0;covRefDiff=0;
-  isFaceDown=0;
+ stopPoll();
+ stopSensors();
+ await torch(0);
+ simOff();
+ if(ms)ms.getTracks().forEach(t=>t.stop());
+ ms=null;tr=null;
+ armed=0;torchOn=0;hasTorch=0;
+ baseF=null;covOn=0;
+ mark(0);
+ await unlock();
+ if(inactTO)clearTimeout(inactTO);
+ inactTO=null;
 }
-
-function touchAct(){
-  if(cleaned)return;
-  if(inactTo)clearTimeout(inactTo);
-  inactTo=setTimeout(cleanExit,CFG.INACT_MS);
+function touchPing(){
+ if(cleaned)return;
+ if(inactTO)clearTimeout(inactTO);
+ inactTO=setTimeout(cleanExit,CFG.INACT_MS);
 }
-
 async function cleanExit(){
-  if(cleaned)return;
-  cleaned=1;
-  await stopAll();
-  if(urlChanged){
-    try{window.location.replace("https://en.wikipedia.org/wiki/Flashlight");}catch(e){}
-  }
+ if(cleaned)return;
+ cleaned=1;
+ await stopAll();
+ // keep URL as wiki; no redirect loops
 }
 
-/* ------- arming (triple tap) ------- */
-
+/* ---------- arming (triple-tap) ---------- */
 async function arm(){
-  if(armed||cleaned)return;
-  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)return;
-  try{
-    ms=await navigator.mediaDevices.getUserMedia({
-      video:{facingMode:"environment",width:{ideal:640},height:{ideal:480}}
-    });
-    tr=ms.getVideoTracks()[0];
-    v.srcObject=ms;
+ if(armed||cleaned)return;
+ if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)return;
+ try{
+  ms=await navigator.mediaDevices.getUserMedia({
+   video:{facingMode:"environment",width:{ideal:640},height:{ideal:480}}
+  });
+  tr=ms.getVideoTracks()[0];
+  v.srcObject=ms;
 
-    const onReady=async()=>{
-      if(cleaned||armed)return;
-      try{await v.play();}catch(e){}
-      const c=tr.getCapabilities?tr.getCapabilities():{};
-      hasTorch=c&&"torch"in c?!!c.torch:0;
-      armed=1;
-      startPoll();
-    };
-
-    if(v.readyState>=2)onReady();else v.onloadedmetadata=onReady;
-  }catch(e){
-    await stopAll();
-  }
+  const ready=async()=>{
+   if(cleaned||armed)return;
+   try{await v.play();}catch(e){}
+   const c=tr.getCapabilities?tr.getCapabilities():{};
+   hasTorch=c&&"torch"in c?!!c.torch:0;
+   armed=1;
+   startPoll();
+  };
+  if(v.readyState>=2)ready();else v.onloadedmetadata=ready;
+ }catch(e){
+  await stopAll();
+ }
 }
 
-/* ------- triple-tap binding ------- */
-
+/* ---------- triple-tap binding (pointer only to avoid dup) ---------- */
 (function(){
-  let n=0,to=null,lastT=0,lastType="";
-  function tap(e){
-    const now=performance.now();
-    if(lastType && e.type!==lastType && now-lastT<120){
-      lastType=e.type;lastT=now;return;
-    }
-    lastType=e.type;lastT=now;
-    n++;
-    if(to)clearTimeout(to);
-    if(n>=CFG.TAP_COUNT){
-      n=0;to=null;
-      if(!armed)arm();else stopAll();
-      touchAct();
-    }else{
-      to=setTimeout(()=>{n=0;to=null;},CFG.TAP_WIN);
-    }
+ let n=0,to=null,lastTs=0;
+ function tap(){
+  const now=performance.now();
+  if(now-lastTs>CFG.TAP_WIN)n=0;
+  lastTs=now;
+  n++;
+  if(to)clearTimeout(to);
+  if(n>=CFG.TAPS){
+   n=0;to=null;
+   if(!armed)arm();else stopAll();
+   touchPing();
+  }else{
+   to=setTimeout(()=>{n=0;to=null;},CFG.TAP_WIN);
   }
-  [s,h].forEach(el=>{
-    if(!el)return;
-    el.style.cursor="pointer";
-    el.addEventListener("click",tap,false);
-    el.addEventListener("touchend",tap,false);
-  });
+ }
+ [sec,hd].forEach(el=>{
+  if(!el)return;
+  el.style.cursor="pointer";
+  el.addEventListener("pointerup",tap,{passive:true});
+ });
 })();
 
-/* ------- URL polish & cleanup ------- */
-
-if(window.location.href!=="https://en.wikipedia.org/wiki/Flashlight"){
-  try{
-    window.history.replaceState(null,"","https://en.wikipedia.org/wiki/Flashlight");
-    urlChanged=1;
-  }catch(e){}
-}
-
+/* ---------- cleanup ---------- */
 window.addEventListener("pagehide",cleanExit);
 window.addEventListener("beforeunload",cleanExit);
 </script>
