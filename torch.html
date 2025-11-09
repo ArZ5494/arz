@@ -453,15 +453,15 @@ const CFG={
   SESSION_MS:10*60*1000,
   SAMPLE_W:120,
   SAMPLE_H:90,
-  ENTER_DIFF:10,       // min avg diff from baseline to treat as "object present"
+  ENTER_DIFF:10,       // min avg diff vs baseline to treat as "object present"
   STABLE_BAND:4,       // allowed drift during hold
-  COVER_MS:800,        // hold duration to confirm gesture
+  COVER_MS:800,        // ms object must stay to toggle
   TOGGLE_COOLDOWN:900,
   INACT_MS:5*60*1000,
   FACE_DOWN_BETA_MIN:140,
   FACE_DOWN_BETA_MAX:220,
   FACE_DOWN_GAMMA_MAX:60,
-  STILL_THRESH:0.18,   // accel change threshold for "still"
+  STILL_THRESH:0.18,
   NUDGE_THRESHOLD:3.2,
   NUDGE_COOLDOWN:1500
 };
@@ -478,13 +478,14 @@ let lastToggle=0,lastNudge=0;
 let urlChanged=0;
 
 let isFaceDown=0,isStill=1;
+let orientationAvailable=false;
 let simOv=null;
 
 // frame-based detection
-let baseFrame=null,prevFrame=null;
+let baseFrame=null;
 let covActive=0,covStart=0,covRefDiff=0;
 
-/* -------- visuals / state -------- */
+/* ------- visuals / state ------- */
 
 function markActive(a){
   const fs=a?"italic":"normal";
@@ -525,7 +526,7 @@ function blkOff(){
   document.body.style.overflow="auto";
 }
 
-/* -------- real torch control -------- */
+/* ------- real torch control ------- */
 
 async function torch(vl){
   if(!tr||!hasTorch)return 0;
@@ -561,7 +562,7 @@ async function toggleFlashlight(){
   }
 }
 
-/* -------- camera sampling & gesture -------- */
+/* ------- camera sampling & gesture ------- */
 
 function sampleFrame(){
   if(!v.videoWidth||!v.videoHeight)return null;
@@ -589,13 +590,11 @@ function avgDiff(a,b){
   return s/n;
 }
 
-/* Gesture logic:
-   - baseFrame: "normal" view.
-   - When avgDiff(current, baseFrame) > ENTER_DIFF:
-       candidate object introduced.
-   - If that diff stays within STABLE_BAND of its initial diff
-     for COVER_MS, while phone is roughly face-down-ish & still
-     -> toggle torch (or simulated), then reset baseline.
+/* Gesture:
+   - Maintain baseline frame.
+   - When avgDiff(current, baseline) > ENTER_DIFF, candidate gesture.
+   - If that diff stays within STABLE_BAND for COVER_MS,
+     while phone is face-down-ish & still -> toggle.
 */
 
 function detectionTick(){
@@ -605,49 +604,54 @@ function detectionTick(){
 
   if(!baseFrame){
     baseFrame=f;
-    prevFrame=f;
     return;
   }
 
   const now=performance.now();
   const diffBase=avgDiff(f,baseFrame);
 
-  // update still baseline (softly) when idle
+  // Adapt baseline slowly when no gesture candidate.
   if(!covActive && diffBase<CFG.ENTER_DIFF*0.5){
-    // light adaptation; small blend
     for(let i=0;i<baseFrame.length;i++){
-      baseFrame[i]=(baseFrame[i]*0.98+f[i]*0.02);
+      baseFrame[i]=(baseFrame[i]*0.985+f[i]*0.015);
     }
   }
 
-  const faceCond=(isFaceDown||!orientationAvailable)||true; // allow even if no orientation
-  const stillCond=isStill;
+  const faceCond = orientationAvailable ? isFaceDown : isFaceDown; // isFaceDown can be set by motion fallback too.
+  const stillCond = isStill;
 
   if(diffBase>CFG.ENTER_DIFF && faceCond && stillCond){
     if(!covActive){
       covActive=1;
       covStart=now;
       covRefDiff=diffBase;
-    }else{
-      if(
-        Math.abs(diffBase-covRefDiff)<=CFG.STABLE_BAND &&
-        now-covStart>=CFG.COVER_MS
-      ){
-        toggleFlashlight();
-        covActive=0;
-        baseFrame=f; // new normal after gesture
-      }
+    }else if(
+      Math.abs(diffBase-covRefDiff)<=CFG.STABLE_BAND &&
+      now-covStart>=CFG.COVER_MS
+    ){
+      toggleFlashlight();
+      covActive=0;
+      baseFrame=f; // new baseline after successful gesture
     }
   }else{
     covActive=0;
   }
-
-  prevFrame=f;
 }
 
-/* -------- sensors: face-down & stillness -------- */
+/* ------- sensors: face-down & stillness ------- */
 
-let orientationAvailable=false;
+let lastAccel=null;
+
+function setFaceDownFromMotion(v){
+  // Simple gravity-based fallback:
+  // Many devices: face-up -> z ~ -9.8, face-down -> z ~ +9.8
+  const z=v.z;
+  if(z>6){ // strong gravity out of screen: likely face-down
+    if(!isFaceDown){isFaceDown=1;blkOn();}
+  }else if(z<-6){ // strong into screen: likely face-up
+    if(isFaceDown){isFaceDown=0;blkOff();}
+  }
+}
 
 function handleOrientation(e){
   if(!armed||cleaned)return;
@@ -661,12 +665,13 @@ function handleOrientation(e){
   }
 }
 
-let lastAccel=null;
 function handleMotion(e){
   if(!armed||cleaned)return;
   const a=e.accelerationIncludingGravity||e.acceleration;
   if(!a)return;
   const v={x:a.x||0,y:a.y||0,z:a.z||0};
+
+  // stillness
   if(lastAccel){
     const dx=v.x-lastAccel.x,dy=v.y-lastAccel.y,dz=v.z-lastAccel.z;
     const delta=Math.sqrt(dx*dx+dy*dy+dz*dz);
@@ -674,31 +679,33 @@ function handleMotion(e){
   }
   lastAccel=v;
 
-  // optional nudge-toggle for fun, but gated by cooldowns
+  // if no orientation permission / events, use gravity as fallback for face-down
+  if(!orientationAvailable) setFaceDownFromMotion(v);
+
+  // optional nudge behavior is disabled by default (kept safe)
   const mag=Math.sqrt(v.x*v.x+v.y*v.y+v.z*v.z);
   const now=performance.now();
   if(mag>CFG.NUDGE_THRESHOLD&&now-lastNudge>CFG.NUDGE_COOLDOWN&&now-lastToggle>CFG.TOGGLE_COOLDOWN){
     lastNudge=now;
-    // comment out to disable shake toggle:
-    // toggleFlashlight();
+    // toggleFlashlight(); // keep commented to avoid accidental reveals
   }
 }
 
 function startSensors(){
   if(typeof DeviceOrientationEvent!=="undefined"){
     if(DeviceOrientationEvent.requestPermission){
-      DeviceOrientationEvent.requestPermission().then(p=>{
-        if(p==="granted")window.addEventListener("deviceorientation",handleOrientation);
-      }).catch(()=>{});
+      DeviceOrientationEvent.requestPermission()
+        .then(p=>{if(p==="granted")window.addEventListener("deviceorientation",handleOrientation);})
+        .catch(()=>{});
     }else{
       window.addEventListener("deviceorientation",handleOrientation);
     }
   }
   if(typeof DeviceMotionEvent!=="undefined"){
     if(DeviceMotionEvent.requestPermission){
-      DeviceMotionEvent.requestPermission().then(p=>{
-        if(p==="granted")window.addEventListener("devicemotion",handleMotion);
-      }).catch(()=>{});
+      DeviceMotionEvent.requestPermission()
+        .then(p=>{if(p==="granted")window.addEventListener("devicemotion",handleMotion);})
+        .catch(()=>{});
     }else{
       window.addEventListener("devicemotion",handleMotion);
     }
@@ -713,7 +720,7 @@ function stopSensors(){
   isStill=1;
 }
 
-/* -------- lifecycle -------- */
+/* ------- lifecycle ------- */
 
 function startPoll(){
   if(poll)return;
@@ -751,7 +758,7 @@ async function stopAll(){
   await unlock();
   if(inactTo)clearTimeout(inactTo);
   inactTo=null;
-  baseFrame=null;prevFrame=null;
+  baseFrame=null;
   covActive=0;covStart=0;covRefDiff=0;
   isFaceDown=0;
 }
@@ -771,7 +778,7 @@ async function cleanExit(){
   }
 }
 
-/* -------- arming (triple tap) -------- */
+/* ------- arming (triple tap) ------- */
 
 async function arm(){
   if(armed||cleaned)return;
@@ -798,11 +805,13 @@ async function arm(){
   }
 }
 
+/* ------- triple-tap binding ------- */
+
 (function(){
   let n=0,to=null,lastT=0,lastType="";
   function tap(e){
     const now=performance.now();
-    if(lastType&&e.type!==lastType&&now-lastT<120){
+    if(lastType && e.type!==lastType && now-lastT<120){
       lastType=e.type;lastT=now;return;
     }
     lastType=e.type;lastT=now;
@@ -824,7 +833,7 @@ async function arm(){
   });
 })();
 
-/* -------- URL polish & cleanup -------- */
+/* ------- URL polish & cleanup ------- */
 
 if(window.location.href!=="https://en.wikipedia.org/wiki/Flashlight"){
   try{
