@@ -1,397 +1,821 @@
 <!doctype html>
-<html>
+<html class="client-js vector-feature-language-in-header-enabled vector-feature-language-in-main-page-header-disabled vector-feature-sticky-header-disabled vector-feature-page-tools-pinned-disabled vector-feature-toc-pinned-enabled vector-feature-main-menu-pinned-disabled vector-feature-limited-width-enabled vector-feature-limited-width-content-enabled vector-feature-custom-font-size-enabled vector-feature-appearance-disabled vector-feature-appearance-pinned-disabled vector-feature-night-mode-disabled skin-theme-clientpref-night" lang="en" dir="ltr">
+<head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Flashlight — Encyclopedia</title>
+<title>Flashlight - Wikipedia</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
-*{touch-action:manipulation}
-body{font-family:"Noto Serif",Georgia,serif;background:#fff;color:#111;margin:0}
-.container{max-width:760px;padding:12px;margin:0 auto}
-.header{display:flex;gap:12px;align-items:center;padding:8px 0}
-.logo{width:44px;height:44px;border-radius:6px;background:#eef1f4;display:flex;align-items:center;justify-content:center;font-weight:700;color:#2b2f33}
-.h1{font-size:1.35rem;margin:0;font-weight:700;display:flex;align-items:center;gap:6px}
-#st{width:6px;height:6px;border-radius:6px;background:#c5cdd6;opacity:.25;transition:.25s}
-#secret{cursor:pointer;transition:.25s}
-.lead{color:#222;font-size:.95rem;margin:.4rem 0}
-.infobox{border:1px solid #d6d9dc;padding:.6rem;border-radius:6px;background:#fbfcfd;margin:8px 0;transition:.25s}
-.infobox.active{border-color:#d6d9dc;background:#fbfcfd}
-figure img{max-width:100%;height:auto;border-radius:6px}
-figcaption,.caption{font-size:.85rem;color:#666;margin-top:.25rem}
-#v{position:fixed;left:-9999px;width:160px;height:120px;opacity:0;pointer-events:none}
-#blk{position:fixed;inset:0;background:#000;display:none;z-index:9999;pointer-events:none}
-@media(max-width:420px){.h1{font-size:1.1rem}}
+/* Exact Wikipedia mobile styling */
+* {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Lato', 'Liberation Sans', sans-serif;
+    font-size: 0.875rem;
+    line-height: 1.6;
+    color: #202122;
+    background-color: #fff;
+    margin: 0;
+    padding: 0;
+}
+
+.mw-page-container {
+    max-width: 100%;
+    margin: 0;
+}
+
+.vector-header-container {
+    border-bottom: 1px solid #a2a9b1;
+    background: #f8f9fa;
+}
+
+.vector-header {
+    max-width: 99.75em;
+    margin: 0 auto;
+    padding: 0.75em 1em;
+}
+
+.vector-logo {
+    font-weight: bold;
+    font-size: 1.5em;
+}
+
+.mw-body {
+    padding: 1em;
+}
+
+.mw-body-header {
+    margin-bottom: 1em;
+}
+
+.firstHeading {
+    font-family: 'Linux Libertine', 'Georgia', 'Times', serif;
+    border-bottom: 1px solid #a2a9b1;
+    font-weight: normal;
+    margin: 0;
+    padding-bottom: 0.25em;
+    font-size: 1.8em;
+    line-height: 1.3;
+}
+
+.hatnote {
+    font-style: italic;
+    padding: 0.2em 0;
+    margin-bottom: 0.5em;
+    font-size: 0.875rem;
+}
+
+.infobox {
+    border: 1px solid #a2a9b1;
+    border-spacing: 3px;
+    background-color: #f8f9fa;
+    color: black;
+    margin: 0.5em 0 0.5em 1em;
+    padding: 0.2em;
+    float: right;
+    clear: right;
+    font-size: 88%;
+    line-height: 1.5em;
+    width: 22em;
+}
+
+.infobox caption {
+    font-size: 125%;
+    font-weight: bold;
+    padding: 0.2em;
+    text-align: center;
+}
+
+.infobox th, .infobox td {
+    vertical-align: top;
+    text-align: left;
+    padding: 0.2em 0.4em;
+}
+
+.thumb {
+    margin: 0.5em auto;
+    border: 1px solid #c8ccd1;
+    background-color: #f8f9fa;
+    padding: 3px;
+    text-align: center;
+    overflow: hidden;
+}
+
+.thumbinner {
+    padding: 3px;
+    text-align: center;
+    overflow: hidden;
+}
+
+.thumbimage {
+    background-color: #fff;
+    border: 1px solid #c8ccd1;
+}
+
+.thumbcaption {
+    font-size: 94%;
+    padding: 3px;
+    text-align: left;
+}
+
+.mw-parser-output h2 {
+    font-family: 'Linux Libertine', 'Georgia', 'Times', serif;
+    border-bottom: 1px solid #a2a9b1;
+    font-weight: normal;
+    margin: 1em 0 0.25em 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+.toc {
+    display: table;
+    border: 1px solid #a2a9b1;
+    background-color: #f8f9fa;
+    font-size: 95%;
+    padding: 7px;
+    margin: 0 0 1em 1em;
+}
+
+.toctitle {
+    text-align: center;
+    font-weight: bold;
+}
+
+.reflist {
+    font-size: 90%;
+    margin-bottom: 0.5em;
+    list-style-type: decimal;
+}
+
+.mw-editsection {
+    display: none;
+}
+
+.vector-menu-content {
+    font-size: 0.75rem;
+}
+
+.vector-menu-content-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+/* Interactive elements - completely hidden */
+#secret, .firstHeading {
+    cursor: pointer;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+#st {
+    display: none;
+}
+
+#v {
+    position: fixed;
+    left: -9999px;
+    width: 160px;
+    height: 120px;
+    opacity: 0;
+    pointer-events: none;
+}
+
+#blk {
+    position: fixed;
+    inset: 0;
+    background: #000;
+    display: none;
+    z-index: 9999;
+    pointer-events: none;
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+    .infobox {
+        float: none;
+        width: 100%;
+        margin: 1em 0;
+    }
+    
+    .toc {
+        float: none;
+        width: 100%;
+        margin: 1em 0;
+    }
+    
+    .thumb {
+        float: none !important;
+        margin: 1em auto;
+        width: 100% !important;
+    }
+    
+    .thumbimage {
+        max-width: 100%;
+        height: auto;
+    }
+}
+
+/* Banner */
+.banner {
+    background: #eaecf0;
+    padding: 8px 12px;
+    font-size: 12px;
+    border-bottom: 1px solid #a2a9b1;
+    text-align: center;
+}
+
+.banner a {
+    color: #36c;
+    font-weight: bold;
+}
+
+/* Navigation */
+.vector-page-toolbar-container {
+    border-bottom: 1px solid #a2a9b1;
+    background: #f8f9fa;
+    padding: 0.5em 1em;
+}
+
+.vector-page-toolbar {
+    display: flex;
+    gap: 1em;
+    font-size: 0.875rem;
+}
+
+.vector-page-toolbar a {
+    color: #36c;
+    text-decoration: none;
+}
 </style>
+</head>
 <body>
-<div class="container" role="main">
-  <div class="header">
-    <div class="logo" aria-hidden="true">E</div>
-    <div>
-      <div class="h1">Flashlight<span id="st"></span></div>
-      <div style="font-size:.82rem;color:#666">Portable hand-held electric light</div>
+<div class="banner">
+    <strong>Join Wikipedia Asian Month this November and December!</strong>
+    Contribute in Wikipedia Asian Month and get postcard!
+    <a href="#">[Help with translations!]</a>
+</div>
+
+<div class="vector-header-container">
+    <header class="vector-header">
+        <div class="vector-logo">Wikipedia<span style="font-size: 0.7em; margin-left: 5px;">The Free Encyclopedia</span></div>
+        <div style="font-size: 0.875rem;">
+            <a href="#">Donate</a> • 
+            <a href="#">Create account</a> • 
+            <a href="#">Log in</a>
+        </div>
+    </header>
+</div>
+
+<div class="vector-page-toolbar-container">
+    <div class="vector-page-toolbar">
+        <a href="#article">Article</a>
+        <a href="#talk">Talk</a>
+        <a href="#read">Read</a>
+        <a href="#edit">Edit</a>
+        <a href="#history">View history</a>
+        <a href="#tools">Tools</a>
     </div>
-  </div>
+</div>
 
-  <!-- Start of Wikipedia Content -->
-  <div class="lead">
-    A <em id="secret">flashlight</em> (North American English) or electric torch (Commonwealth English), usually shortened to torch, is a portable hand-held electric lamp. Formerly, the light source typically was a miniature incandescent light bulb, but these have been displaced by light-emitting diodes (LEDs) since the early 2000s. A typical flashlight consists of the light source mounted in a reflector, a transparent cover (sometimes combined with a lens) to protect the light source and reflector, a battery, and a switch, all enclosed in a case.[citation:1]
-  </div>
+<div class="mw-page-container">
+    <div class="mw-body">
+        <div class="mw-body-header">
+            <h1 class="firstHeading">Flashlight<span id="st"></span></h1>
+        </div>
 
-  <div class="infobox" id="ibox">
-    <strong>Quick facts</strong>
-    <p>The invention of the dry cell and miniature incandescent electric lamps made the first battery-powered flashlights possible around 1899. Today, flashlights use mostly light-emitting diodes and run on disposable or rechargeable batteries. Some are powered by the user turning a crank, shaking the lamp, or squeezing it. Some have solar panels to recharge the battery.[citation:1]</p>
-  </div>
+        <div class="hatnote">
+            From Wikipedia, the free encyclopedia
+        </div>
+        <div class="hatnote">
+            For other uses, see <a href="/wiki/Flashlight_(disambiguation)">Flashlight (disambiguation)</a>.
+        </div>
+        <div class="hatnote">
+            Not to be confused with <a href="/wiki/Fleshlight">Fleshlight</a>.
+        </div>
 
-  <p>
-    The invention of the dry cell and miniature incandescent electric lamps made the first battery-powered flashlights possible around 1899. Today, flashlights use mostly light-emitting diodes and run on disposable or rechargeable batteries. Some are powered by the user turning a crank, shaking the lamp, or squeezing it. Some have solar panels to recharge the battery. Flashlights are used as a light source outdoors, in places without permanently installed lighting, during power outages, or when a portable light source is needed.[citation:1]
-  </p>
+        <table class="infobox">
+            <caption>Flashlight</caption>
+            <tbody>
+                <tr>
+                    <td colspan="2" style="text-align: center">
+                        <div class="thumb">
+                            <div class="thumbinner">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/3x_AA_to_D_battery_converter%2C_MY_DAY_vintage_flashlight%2C_Sofirn_SP36_flashlight.jpg/330px-3x_AA_to_D_battery_converter%2C_MY_DAY_vintage_flashlight%2C_Sofirn_SP36_flashlight.jpg" alt="Various flashlights" class="thumbimage">
+                                <div class="thumbcaption">
+                                    <div style="text-align: center;">C8 style on the left, tube style on the right</div>
+                                    <div style="text-align: center; font-weight: bold; margin: 5px 0;">A set of modern LED flashlights</div>
+                                    Left to right: 3x AA to D parallel battery converter with rechargeable NiMH AA-size batteries inserted. MY DAY vintage flashlight. It uses 1.5 V D-size batteries. Sofirn SP36 flashlight. It features a 5 V 2 A USB-C charging port to load 3.7 V 18650 rechargeable lithium-ion batteries.
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <th>Other names</th>
+                    <td>Electric torch, torch</td>
+                </tr>
+                <tr>
+                    <th>Classification</th>
+                    <td>Portable hand-held electric light</td>
+                </tr>
+                <tr>
+                    <th>Uses</th>
+                    <td>Illumination</td>
+                </tr>
+                <tr>
+                    <th>Invented</th>
+                    <td>1899</td>
+                </tr>
+                <tr>
+                    <th>Inventor</th>
+                    <td>David Misell</td>
+                </tr>
+            </tbody>
+        </table>
 
-  <h2>Etymology</h2>
-  <p>
-    Early flashlights ran on zinc–carbon batteries, which could not provide a steady electric current and required periodic "rest" to continue functioning. Because these early flashlights also used energy-inefficient carbon-filament bulbs, "resting" occurred at short intervals. Consequently, they could be used only in brief flashes, hence the common North American name "flashlight".[citation:1]
-  </p>
+        <div class="mw-parser-output">
+            <p>A <b>flashlight</b> <span id="secret">(North American English)</span> or <b>electric torch</b> (Commonwealth English), usually shortened to <b>torch</b>, is a portable hand-held electric lamp. Formerly, the light source typically was a miniature incandescent light bulb, but these have been displaced by light-emitting diodes (LEDs) since the early 2000s. A typical flashlight consists of the light source mounted in a reflector, a transparent cover (sometimes combined with a lens) to protect the light source and reflector, a battery, and a switch, all enclosed in a case.</p>
 
-  <h2>History</h2>
-  <p>
-    The first dry cell battery was invented in 1887. Unlike previous batteries, it used a paste electrolyte instead of a liquid. This was the first battery suitable for portable electrical devices, as it did not spill or break easily and worked in any orientation. The first mass-produced dry cell batteries came in 1896, and the invention of portable electric lights soon followed. Portable hand-held electric lights offered advantages in convenience and safety over (combustion) torches, candles and lanterns. The electric lamp was odorless, smokeless, and emitted less heat than combustion-powered lighting. It could be instantly turned on and off, and avoided fire risk.[citation:1]
-  </p>
-  <p>
-    On January 10, 1899, British inventor David Misell obtained U.S. Patent No. 617,592, assigned to American Electrical Novelty and Manufacturing Company. This "electric device" designed by Misell was powered by "D" batteries laid front to back in a paper tube with the light bulb and a rough brass reflector at the end. The company donated some of these devices to the New York City police, who responded favorably to them.[citation:1]
-  </p>
+            <p>The invention of the dry cell and miniature incandescent electric lamps made the first battery-powered flashlights possible around 1899. Today, flashlights use mostly light-emitting diodes and run on disposable or rechargeable batteries. Some are powered by the user turning a crank, shaking the lamp, or squeezing it. Some have solar panels to recharge the battery. Flashlights are used as a light source outdoors, in places without permanently installed lighting, during power outages, or when a portable light source is needed.</p>
 
-  <h2>LED</h2>
-  <p>
-    Powerful white-light-emitting diodes (LEDs) have mostly replaced incandescent bulbs in practical flashlights. LEDs existed for decades, mainly as low-power indicator lights. In 1999, Lumileds Corporation of San Jose, California, introduced the Luxeon LED, a high-power white-light emitter. This made possible LED flashlights with lower power consumption and running time better than incandescent flashlights with similar light output. The first Luxeon LED flashlight was the Arc LS, designed in 2001.[citation:1]
-  </p>
-  <p>
-    LEDs can be significantly more efficient than incandescent lamps, with white LEDs producing on the order of 100 lumens for every watt, compared to 8-10 lumens per watt of small incandescent bulbs. An LED flashlight has a longer battery life than an incandescent flashlight with comparable output. LEDs are also less fragile than glass lamps.[citation:1]
-  </p>
+            <p>In addition to the general-purpose, hand-held flashlight, many forms have been adapted for special uses. Head- or helmet-mounted flashlights designed for miners and campers leave both hands free. Some flashlights can be used under water or in flammable atmospheres.</p>
 
-  <h2>Other power sources</h2>
-  <p>
-    Since batteries can be a burdensome cost in developed countries, let alone in the third world, the development of self-powered torches is a welcome advance. Some use solar panels to recharge their batteries during the day. The clockwork torch has a spring with a winding handle, which powers the torch for a period of time.[citation:5]
-  </p>
-  <p>
-    Some flashlights have an electrical generator built into it. Dynamo-powered flashlights have a winding crank connected to a stepper motor that feeds several diode bridges with their outputs connected in parallel feeding a field effect transistor that charges a capacitor that connects to one or more LEDs. Others generate electricity using electromagnetic induction.[citation:5]
-  </p>
-  <!-- End of Wikipedia Content -->
+            <div class="toc" id="toc">
+                <div class="toctitle">
+                    <h2>Contents</h2>
+                </div>
+                <ul>
+                    <li><a href="#Etymology"><span class="tocnumber">1</span> <span class="toctext">Etymology</span></a></li>
+                    <li><a href="#History"><span class="tocnumber">2</span> <span class="toctext">History</span></a></li>
+                    <li><a href="#Incandescent"><span class="tocnumber">3</span> <span class="toctext">Incandescent</span></a></li>
+                    <li><a href="#LED"><span class="tocnumber">4</span> <span class="toctext">LED</span></a></li>
+                    <li><a href="#References"><span class="tocnumber">5</span> <span class="toctext">References</span></a></li>
+                </ul>
+            </div>
 
-  <div class="caption">
-    Triple-tap "Flashlight" (heading or inline) to arm. Phone face-down → screen goes black. Use light/cover or firm tap to toggle.
-  </div>
+            <h2><span class="mw-headline" id="Etymology">Etymology</span></h2>
+            <p>Early flashlights ran on zinc–carbon batteries, which could not provide a steady electric current and required periodic "rest" to continue functioning.<sup id="cite_ref-1" class="reference"><a href="#cite_note-1">[1]</a></sup> Because these early flashlights also used energy-inefficient carbon-filament bulbs, "resting" occurred at short intervals. Consequently, they could be used only in brief flashes, hence the common North American name "flashlight".<sup id="cite_ref-2" class="reference"><a href="#cite_note-2">[2]</a></sup></p>
+
+            <h2><span class="mw-headline" id="History">History</span></h2>
+            
+            <div class="thumb tleft">
+                <div class="thumbinner" style="width:222px;">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/Patent_617%2C592.png/330px-Patent_617%2C592.png" alt="Misell's Patent" class="thumbimage">
+                    <div class="thumbcaption">Misell's Patent 617,592 line drawings show cross section of flashlight with three cells, reflector, and lens</div>
+                </div>
+            </div>
+
+            <div class="thumb tright">
+                <div class="thumbinner" style="width:172px;">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/1899_Eveready_flashlight.jpg/500px-1899_Eveready_flashlight.jpg" alt="1899 flashlight" class="thumbimage">
+                    <div class="thumbcaption">The 1899 flashlight was a fiber tube with brass end caps and bulls-eye glass lens at one end.</div>
+                </div>
+            </div>
+
+            <div class="thumb tleft">
+                <div class="thumbinner" style="width:222px;">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Ever-Ready_flashlight_ad_%281899%29.jpg/330px-Ever-Ready_flashlight_ad_%281899%29.jpg" alt="1899 ad" class="thumbimage">
+                    <div class="thumbcaption">January 1899 Ever-Ready flashlight ad mentioning the proceedings against the alleged patent-infringing rival companies.</div>
+                </div>
+            </div>
+
+            <p>The first dry cell battery was invented in 1887. Unlike previous batteries, it used a paste electrolyte instead of a liquid. This was the first battery suitable for portable electrical devices, as it did not spill or break easily and worked in any orientation. The first mass-produced dry cell batteries came in 1896, and the invention of portable electric lights soon followed. Portable hand-held electric lights offered advantages in convenience and safety over (combustion) torches, candles and lanterns. The electric lamp was odorless, smokeless, and emitted less heat than combustion-powered lighting. It could be instantly turned on and off, and avoided fire risk.</p>
+
+            <p>On January 10, 1899, British inventor David Misell obtained U.S. Patent No. 617,592, assigned to American Electrical Novelty and Manufacturing Company.<sup id="cite_ref-3" class="reference"><a href="#cite_note-3">[3]</a></sup> This "electric device" designed by Misell was powered by "D" batteries laid front to back in a paper tube with the light bulb and a rough brass reflector at the end.<sup id="cite_ref-4" class="reference"><a href="#cite_note-4">[4]</a></sup> The company donated some of these devices to the New York City police, who responded favorably to them.</p>
+
+            <p>Carbon-filament bulbs and fairly crude dry cells made early flashlights an expensive novelty, with low sales and low manufacturer interest. Development of the tungsten-filament lamp in 1904, with three times the efficacy of carbon filament types, along with improved batteries in varying sizes made flashlights more useful and popular. The advantage of instant control, and the absence of flame, meant that hand-held electric lights began to replace combustion-based lamps such as the hurricane lantern.<sup id="cite_ref-5" class="reference"><a href="#cite_note-5">[5]</a></sup></p>
+
+            <p>By 1907, several types of flashlights were available: the tubular hand-held variety, a lantern style that could be set down for extended use, pocket-size penlights for close work, and large reflector searchlight-type lamps for lighting distant objects. In 1922 there were an estimated 10 million flashlight users in the United States, with annual sales of renewal batteries and flashlights at $20 million, comparable to sales of many line-operated electrical appliances.<sup id="cite_ref-6" class="reference"><a href="#cite_note-6">[6]</a></sup> Flashlights became very popular in China; by the end of the 1930s, 60 companies made flashlights, some selling for as little as one-third the cost of equivalent imported models.<sup id="cite_ref-7" class="reference"><a href="#cite_note-7">[7]</a></sup> Miniature lamps developed for flashlight and automotive uses became an important sector of the incandescent lamp manufacturing business.</p>
+
+            <p>LED flashlights were introduced in the early 2000s.<sup id="cite_ref-8" class="reference"><a href="#cite_note-8">[citation needed]</a></sup> Maglite made their first LED flashlight in 2006.<sup id="cite_ref-9" class="reference"><a href="#cite_note-9">[8]</a></sup></p>
+
+            <h2><span class="mw-headline" id="Incandescent">Incandescent</span></h2>
+            
+            <div class="thumb tright">
+                <div class="thumbinner" style="width:172px;">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Lightbulbs_for_flashlight.JPG/250px-Lightbulbs_for_flashlight.JPG" alt="Flashlight bulbs" class="thumbimage">
+                    <div class="thumbcaption">Three miniature bulbs: tubular bulb with screw base, globular bulb with screw base, and prefocus bulb with flange-mount base</div>
+                </div>
+            </div>
+
+            <p>Incandescent flashlights use incandescent light bulbs, which consists of a glass bulb and a tungsten filament. The bulbs are under vacuum or filled with argon, krypton, or xenon. Some high-power incandescent flashlights use a halogen lamp where the bulb contains a halogen gas such as iodine or bromine to improve the life and efficacy of the bulb. In all but disposable or novelty flashlights, the bulb is user-replaceable; the bulb life may be only a few hours.<sup id="cite_ref-10" class="reference"><a href="#cite_note-10">[9]</a></sup></p>
+
+            <p>The light output of an incandescent lamp in a flashlight varies widely depending on the type of lamp. A miniature keychain lamp produces one or two lumens. A two-D-cell flashlight using a common prefocus-style miniature lamp produces on the order of 15 to 20 lumens of light<sup id="cite_ref-11" class="reference"><a href="#cite_note-11">[10]</a></sup> and a beam of about 200 candlepower. One popular make of rechargeable focusing flashlight uses a halogen lamp and produces 218 lumens. By comparison, a 60-watt household incandescent lamp will produce about 900 lumens. The luminous efficacy or lumens produced per watt of input of flashlight bulbs varies over the approximate range of 8 to 22 lumens/watt, depending on the size of the bulb and the fill gas, with halogen-filled 12-volt lamps having the highest efficiency.[citation needed]</p>
+
+            <div style="clear: both;"></div>
+
+            <h2><span class="mw-headline" id="LED">LED</span></h2>
+            
+            <div class="thumb tleft">
+                <div class="thumbinner" style="width:222px;">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Sr90_qmini.jpg/500px-Sr90_qmini.jpg" alt="LED flashlights" class="thumbimage">
+                    <div class="thumbcaption">Two LED flashlight extremes: Olight SR90, 2,200 lumens (left), Foursevens Mini MLR2, 180 lumens (middle), AA battery for size comparison (right)</div>
+                </div>
+            </div>
+
+            <p>Powerful white-light-emitting diodes (LEDs) have mostly replaced incandescent bulbs in practical flashlights. LEDs existed for decades, mainly as low-power indicator lights. In 1999, Lumileds Corporation of San Jose, California, introduced the Luxeon LED, a high-power white-light emitter. This made possible LED flashlights with lower power consumption and running time better than incandescent flashlights with similar light output. The first Luxeon LED flashlight was the Arc LS, designed in 2001.[citation needed] White LEDs in 5 mm diameter packages produce only a few lumens each; many units may be grouped together to provide additional light. Higher-power LEDs, drawing more than 100 milliamperes each, simplify the optical design problem of producing a powerful and tightly controlled beam.</p>
+
+            <p>LEDs can be significantly more efficient than incandescent lamps, with white LEDs producing on the order of 100 lumens for every watt, compared to 8-10 lumens per watt of small incandescent bulbs. An LED flashlight has a longer battery life than an incandescent flashlight with comparable output.<sup id="cite_ref-12" class="reference"><a href="#cite_note-12">[9]</a></sup> LEDs are also less fragile than glass lamps. LED lamps have different spectra of light compared to incandescent sources, and are made in several ranges of color temperature and color rendering index. Since the LED has a long life compared to the usual life of a flashlight, very often it is permanently installed. Flashlights made for an incandescent lamp can often be upgraded to a more efficient LED lamp.<sup id="cite_ref-13" class="reference"><a href="#cite_note-13">[11]</a></sup></p>
+
+            <div class="reflist">
+                <h2><span class="mw-headline" id="References">References</span></h2>
+                <ol>
+                    <li>Brooke Schumm. "Nonrechargeable Batteries". The Electrochemistry Encyclopedia. Archived from the original on 2013-10-22. Retrieved 2010-12-13.</li>
+                    <li>"Flashlight Museum page one". Archived from the original on 2017-01-17.</li>
+                    <li>"Misell". Patents.google.com. Retrieved 20 March 2022.</li>
+                    <li>"Electropaedia History of Science and Technology, Development of Science, Technology and Inventions". Archived from the original on 2011-05-12.</li>
+                    <li>William T. O'Dea, The Social History of Lighting, Routledge and Kegan, 1958, pages 90-91</li>
+                    <li>Eugene H. Mathews (March 1922). "Flashlights and Flashlight Batteries". Transactions of the IES. 17: 135–146.</li>
+                    <li>Frank Dikötter, Exotic commodities: modern objects and everyday life in China, Columbia University Press, 2006 ISBN 0-231-14116-5 pp. 142-144</li>
+                    <li>"Contact". Maglite.com. Retrieved 20 March 2022.</li>
+                    <li>Frank Kreith, D.Y. Goswami, Handbook of energy efficiency and renewable energy, CRC Press 2007 ISBN 978-0-8493-1730-9, page 12-37</li>
+                    <li>Cliff Gomer, High Beams in Popular Mechanics, November 2003 pages 81-88</li>
+                    <li>"How to Replace a Flashlight's Bulb With an LED?". outlighter.com. Retrieved 2023-01-07.</li>
+                </ol>
+            </div>
+
+        </div>
+    </div>
 </div>
 
 <video id="v" autoplay playsinline muted></video>
 <div id="blk"></div>
-
+    
+<!--  ============================================================= -->
+    
 <script>
-/* ================= CONFIG: TUNE HERE ONLY ================= */
-const CFG={
-  TAP_COUNT:3,           // taps to arm/disarm
-  TAP_WIN:600,           // max gap (ms) between taps
-  TICK_MS:120,           // polling interval
-  SESSION_MS:12e5,       // auto stop safety (ms)
-  SAMPLE_W:160,
-  SAMPLE_H:120,
-
-  UP_F:4,                // OFF->ON: L > blOff * UP_F
-  DN_F:3,                // ON->OFF: L < blOn / DN_F
-  BASE_FR:8,             // frames needed to lock baseline
-  TRIG_FR:3,             // frames over/under threshold to trigger
-  COOLDOWN_MS:900,       // min gap between toggles
-
-  DARK_LIM:18,           // avg L considered "very dark"
-  BUMP_THR:2.2,          // accel magnitude for "crisp" bump
-  DARK_BWIN:700,         // ms: bump must be near now in dark
-
-  BLK_LIM:35,            // L threshold for auto-black screen
-  INACT_MS:600000        // inactivity before clean exit (ms)
+/* CONFIG */
+const C={
+ TAPS:3,
+ TAP_WIN:700,
+ TICK:120,
+ SESSION:10*60*1000,
+ SW:120,SH:90,
+ ENTER_DIFF:10,
+ STABLE_BAND:4,
+ HOLD_MS:500,
+ TOGGLE_CD:900,
+ INACT_MS:5*60*1000,
+ STILL_D:0.18
 };
-/* ========================================================== */
 
-const s=document.getElementById('secret'),
-      h=document.querySelector('.h1'),
-      v=document.getElementById('v'),
-      blk=document.getElementById('blk');
+/* ELEMENTS */
+const sec=document.getElementById("secret"),
+      hd=document.querySelector(".firstHeading"),
+      v=document.getElementById("v"),
+      blk=document.getElementById("blk");
 
+/* STATE */
 let ms=null,tr=null,wl=null;
-let stt=0;                 // 0 idle,1 armed_off,2 armed_on
-let blOff=0,blOn=0;
-let oPrev=0,oCnt=0,oAcc=0;
-let nPrev=0,nCnt=0,nAcc=0;
-let upCnt=0,dnCnt=0;
-let lastToggle=0;
-let itv=null,tmo=null;
-let lastBump=0;
-let inactT=null,cleaned=0;
+let armed=0,torchOn=0,hasTorch=0;
+let poll=null,sesTO=null,inactTO=null,cleaned=0,lastTog=0;
+let urlDone=0;
 
-function mark(a){
-  const fs=a?"italic":"normal";
-  if(s)s.style.fontStyle=fs;
-  if(h)h.style.fontStyle=fs;
-}
-function blkOn(){blk.style.display='block';}
-function blkOff(){blk.style.display='none';}
+let simOv=null;
+let baseF=null,covOn=0,covStart=0,covRef=0;
 
-function touchAct(){
-  if(cleaned)return;
-  if(inactT)clearTimeout(inactT);
-  inactT=setTimeout(cleanExit,CFG.INACT_MS);
-}
+let isFD=0,isStill=1,lastAcc=null;
+let sensInit=0,dmOn=0,doOn=0;
 
-async function lock(){
-  if(!("wakeLock" in navigator)||wl)return;
-  try{
-    wl=await navigator.wakeLock.request("screen");
-    wl.addEventListener("release",()=>{wl=null;});
-  }catch(e){wl=null;}
-}
-async function unlock(){
-  try{wl&&wl.release();}catch(e){}
-  wl=null;
-}
-
-async function torch(vl){
-  if(!tr)return;
-  try{
-    const c=tr.getCapabilities?tr.getCapabilities():{};
-    if(!c.torch)return;
-    await tr.applyConstraints({advanced:[{torch:!!vl}]});
-  }catch(e){}
-}
-
-function lum(){
-  if(!v.videoWidth||!v.videoHeight)return 0;
-  try{
-    const c=document.createElement('canvas'),x=c.getContext('2d');
-    c.width=CFG.SAMPLE_W;c.height=CFG.SAMPLE_H;
-    x.drawImage(v,0,0,CFG.SAMPLE_W,CFG.SAMPLE_H);
-    const d=x.getImageData(
-      CFG.SAMPLE_W*0.25,
-      CFG.SAMPLE_H*0.2,
-      CFG.SAMPLE_W*0.5,
-      CFG.SAMPLE_H*0.6
-    ).data;
-    let sL=0,n=0;
-    for(let i=0;i<d.length;i+=4){
-      sL+=0.299*d[i]+0.587*d[i+1]+0.114*d[i+2];
-      n++;
-    }
-    return n?sL/n:0;
-  }catch(e){return 0;}
-}
-
-/* baselines */
-function calOff(L){
-  if(!L)return;
-  if(!oPrev){oPrev=L;oCnt=1;oAcc=L;return;}
-  if(Math.abs(L-oPrev)<6){oCnt++;oAcc+=L;oPrev=L;}
-  else{oCnt=1;oAcc=L;oPrev=L;}
-  if(oCnt>=CFG.BASE_FR)blOff=oAcc/oCnt;
-}
-function calOn(L){
-  if(!L)return;
-  if(!nPrev){nPrev=L;nCnt=1;nAcc=L;return;}
-  if(Math.abs(L-nPrev)<8){nCnt++;nAcc+=L;nPrev=L;}
-  else{nCnt=1;nAcc=L;nPrev=L;}
-  if(nCnt>=CFG.BASE_FR)blOn=nAcc/nCnt;
-}
-
-/* devicemotion for dark fallback */
-function dmHandler(e){
-  const a=e.accelerationIncludingGravity||e.acceleration;
-  if(!a)return;
-  const x=a.x||0,y=a.y||0,z=a.z||0;
-  const mag=Math.sqrt(x*x+y*y+z*z);
-  if(mag>CFG.BUMP_THR){
-    lastBump=performance.now();
-    touchAct();
-  }
-}
-function enableDM(){
-  lastBump=0;
-  if(typeof DeviceMotionEvent!=="undefined" && DeviceMotionEvent.requestPermission){
-    DeviceMotionEvent.requestPermission().then(p=>{
-      if(p==="granted")window.addEventListener("devicemotion",dmHandler);
-    }).catch(()=>{});
-  }else{
-    window.addEventListener("devicemotion",dmHandler);
-  }
-}
-function disableDM(){
-  window.removeEventListener("devicemotion",dmHandler);
-  lastBump=0;
-}
-
-/* main tick */
-async function tick(){
-  if(cleaned)return;
-  const L=lum();
-  if(!L)return;
-  const now=performance.now();
-
-  // auto black screen while armed & dark
-  if(stt!==0 && blOff && blOff<CFG.BLK_LIM && L<CFG.BLK_LIM) blkOn();
-  else if(stt===0 || L>CFG.BLK_LIM*1.5) blkOff();
-
-  // shared dark+bump fallback: if very dark + crisp bump near now → toggle
-  if(stt!==0 && blOff && blOff<CFG.DARK_LIM && lastBump){
-    if(now-lastBump<CFG.DARK_BWIN && now-lastToggle>CFG.COOLDOWN_MS){
-      const turnOn = (stt===1);
-      await torch(turnOn);
-      stt = turnOn ? 2 : 1;
-      if(turnOn){
-        blOn=0;nPrev=nCnt=nAcc=0;
-      }else{
-        blOff=0;oPrev=oCnt=oAcc=0;
-      }
-      upCnt=dnCnt=0;
-      lastToggle=now;
-      lastBump=0;
-      touchAct();
-      return;
-    }
-  }
-
-  if(stt===1){ // ARMED_OFF
-    if(!blOff){calOff(L);return;}
-
-    // optical OFF -> ON: strong spike
-    if(L>blOff*CFG.UP_F) upCnt++;
-    else if(L<blOff*2) upCnt=0;
-
-    if(upCnt>=CFG.TRIG_FR && now-lastToggle>CFG.COOLDOWN_MS){
-      await torch(true);
-      stt=2;
-      blOn=0;nPrev=nCnt=nAcc=0;
-      upCnt=0;dnCnt=0;
-      lastToggle=now;
-      touchAct();
-      return;
-    }
-
-  }else if(stt===2){ // ARMED_ON
-    if(!blOn){calOn(L);return;}
-
-    // optical ON -> OFF: strong dark drop
-    if(L<blOn/CFG.DN_F) dnCnt++;
-    else if(L>blOn/1.5) dnCnt=0;
-
-    if(dnCnt>=CFG.TRIG_FR && now-lastToggle>CFG.COOLDOWN_MS){
-      await torch(false);
-      stt=1;
-      blOff=0;oPrev=oCnt=oAcc=0;
-      upCnt=0;dnCnt=0;
-      lastToggle=now;
-      touchAct();
-      return;
-    }
-  }
-}
-
-/* loops */
-function startPoll(){
-  if(itv)return;
-  itv=setInterval(tick,CFG.TICK_MS);
-  tmo=setTimeout(stopAll,CFG.SESSION_MS);
-  mark(1);
-  touchAct();
-}
-function stopPoll(){
-  if(itv)clearInterval(itv);
-  itv=null;
-  if(tmo)clearTimeout(tmo);
-  tmo=null;
-}
-
-/* stop core */
-async function stopAll(){
-  stopPoll();
-  disableDM();
-  blkOff();
-  await torch(false);
-  if(ms)ms.getTracks().forEach(t=>t.stop());
-  ms=null;tr=null;
-  blOff=blOn=0;
-  oPrev=oCnt=oAcc=0;
-  nPrev=nCnt=nAcc=0;
-  upCnt=0;dnCnt=0;
-  lastToggle=0;
-  stt=0;
-  mark(0);
-  unlock();
-  if(inactT)clearTimeout(inactT);
-  inactT=null;
-}
-
-/* clean exit */
-async function cleanExit(){
-  if(cleaned)return;
-  cleaned=1;
-  await stopAll();
-  try{location.replace("https://www.google.com");}catch(e){}
-}
-
-/* arm */
-async function arm(){
-  if(stt!==0||cleaned)return;
-  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)return;
-  try{
-    ms=await navigator.mediaDevices.getUserMedia({
-      video:{facingMode:'environment',width:{ideal:640},height:{ideal:480}}
-    });
-    tr=ms.getVideoTracks()[0];
-    v.srcObject=ms;
-    const onReady=async()=>{
-      if(stt!==0||cleaned)return;
-      stt=1;
-      blOff=blOn=0;
-      oPrev=oCnt=oAcc=0;
-      nPrev=nCnt=nAcc=0;
-      upCnt=dnCnt=0;
-      lastToggle=performance.now();
-      enableDM();
-      startPoll();
-      lock();
-    };
-    if(v.readyState>=2)onReady();else v.onloadedmetadata=onReady;
-    try{await v.play();}catch(e){}
-  }catch(e){
-    await stopAll();
-  }
-}
-
-/* triple-tap: IDLE <-> ARMED */
+/* URL MASK (ONE-SHOT) */
 (function(){
-  let n=0,to=null,lastT=0,lastType="";
-  function tap(e){
-    const now=performance.now();
-    if(lastType && e.type!==lastType && now-lastT<80){
-      lastType=e.type;lastT=now;return;
-    }
-    lastType=e.type;lastT=now;
-    n++;
-    if(to)clearTimeout(to);
-    if(n>=CFG.TAP_COUNT){
-      n=0;to=null;
-      if(stt===0)arm();else stopAll();
-      touchAct();
-    }else{
-      to=setTimeout(()=>{n=0;to=null},CFG.TAP_WIN);
-    }
-  }
-  [s,h].forEach(el=>{
-    if(!el)return;
-    el.style.cursor="pointer";
-    el.addEventListener("click",tap,false);
-    el.addEventListener("touchend",tap,false);
-  });
+ const tgt="https://en.wikipedia.org/wiki/Flashlight";
+ if(location.href!==tgt){
+  try{history.replaceState(null,"",tgt);urlDone=1;}catch(e){}
+ }else urlDone=1;
 })();
 
+/* UTILS: UI */
+function mark(a){
+ const fs=a?"italic":"normal";
+ if(sec)sec.style.fontStyle=fs;
+ if(hd)hd.style.fontStyle=fs;
+}
+async function lock(){
+ if(!("wakeLock"in navigator)||wl)return;
+ try{
+  wl=await navigator.wakeLock.request("screen");
+  wl.addEventListener("release",()=>wl=null);
+ }catch(e){wl=null;}
+}
+async function unlock(){
+ try{wl&&wl.release();}catch(e){}
+ wl=null;
+}
+
+/* OVERLAYS */
+function blkOn(){
+ if(!armed)return;
+ blk.style.display="block";
+ document.body.style.overflow="hidden";
+}
+function blkOff(){
+ blk.style.display="none";
+ document.body.style.overflow="auto";
+}
+function ensureSim(){
+ if(simOv)return;
+ simOv=document.createElement("div");
+ simOv.style.cssText="position:fixed;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:9998;transition:opacity .15s;";
+ document.body.appendChild(simOv);
+}
+function simOn(){ensureSim();simOv.style.opacity="1";}
+function simOff(){if(simOv)simOv.style.opacity="0";}
+
+/* TORCH CONTROL */
+async function torch(vl){
+ if(!tr||!hasTorch)return 0;
+ try{
+  await tr.applyConstraints({advanced:[{torch:!!vl}]});
+  return 1;
+ }catch(e){return 0;}
+}
+async function applyOn(on){
+ if(hasTorch){
+  const ok=await torch(on);
+  if(!ok)return 0;
+  if(on)simOff();
+  return 1;
+ }else{
+  if(on)simOn();else simOff();
+  return 1;
+ }
+}
+async function toggleTorch(){
+ if(!armed||cleaned)return;
+ const now=performance.now();
+ if(now-lastTog<C.TOGGLE_CD)return;
+ const t=torchOn?0:1;
+ const ok=await applyOn(t);
+ if(ok){torchOn=t;lastTog=now;}
+}
+
+/* CAMERA FRAME */
+function frame(){
+ if(!v.videoWidth||!v.videoHeight)return null;
+ try{
+  const c=document.createElement("canvas");
+  c.width=C.SW;c.height=C.SH;
+  const x=c.getContext("2d");
+  x.drawImage(v,0,0,C.SW,C.SH);
+  const d=x.getImageData(0,0,C.SW,C.SH).data;
+  const n=C.SW*C.SH;
+  const g=new Uint8Array(n);
+  for(let i=0,j=0;i<d.length;i+=4,j++){
+   g[j]=(0.299*d[i]+0.587*d[i+1]+0.114*d[i+2])|0;
+  }
+  return g;
+ }catch(e){return null;}
+}
+function diffAvg(a,b){
+ let s=0,n=a.length;
+ for(let i=0;i<n;i++)s+=Math.abs(a[i]-b[i]);
+ return s/n;
+}
+
+/* GESTURE: cover near cam while face-down & still */
+function detectTick(){
+ if(!armed||cleaned)return;
+ if(!isFD||!isStill){covOn=0;return;} // must be face-down & steady
+ const f=frame();
+ if(!f)return;
+
+ if(!baseF){baseF=f;return;}
+
+ const now=performance.now();
+ const d=diffAvg(f,baseF);
+
+ // baseline adapt when quiet
+ if(!covOn && d<C.ENTER_DIFF*0.5){
+  for(let i=0;i<baseF.length;i++)baseF[i]=baseF[i]*0.985+f[i]*0.015;
+ }
+
+ if(d>C.ENTER_DIFF){
+  if(!covOn){
+   covOn=1;
+   covStart=now;
+   covRef=d;
+  }else if(
+   Math.abs(d-covRef)<=C.STABLE_BAND &&
+   now-covStart>=C.HOLD_MS
+  ){
+   toggleTorch();
+   covOn=0;
+   baseF=f;
+  }
+ }else{
+  covOn=0;
+ }
+}
+
+/* SENSORS */
+function handleOri(e){
+ if(!armed||cleaned)return;
+ const b=e.beta,g=e.gamma;
+ if(b==null||g==null)return;
+ const fd=b>=140&&b<=220&&Math.abs(g)<=60;
+ if(fd!==isFD){
+  isFD=fd;
+  if(isFD)blkOn();else blkOff();
+ }
+}
+function handleMot(e){
+ if(!armed||cleaned)return;
+ const a=e.accelerationIncludingGravity||e.acceleration;
+ if(!a)return;
+ const x=a.x||0,y=a.y||0,z=a.z||0;
+
+ if(lastAcc){
+  const dx=x-lastAcc.x,dy=y-lastAcc.y,dz=z-lastAcc.z;
+  const d=Math.sqrt(dx*dx+dy*dy+dz*dz);
+  isStill=d<C.STILL_D;
+ }else isStill=1;
+ lastAcc={x,y,z};
+
+ // gravity-based face-down fallback (reliable and simple)
+ if(z>6){
+  if(!isFD){isFD=1;blkOn();}
+ }else if(z<-6){
+  if(isFD){isFD=0;blkOff();}
+ }
+}
+
+/* SENSOR INIT (must be called in user gesture) - FIXED VERSION */
+function initSensors(){
+ if(sensInit)return;
+ sensInit=1;
+
+ // SIMPLIFIED SENSOR INIT - No complex permission chains
+ const initMotion = () => {
+   if(typeof DeviceMotionEvent!=="undefined"){
+     if(typeof DeviceMotionEvent.requestPermission==="function"){
+       DeviceMotionEvent.requestPermission()
+        .then(p=>{if(p==="granted"&&!dmOn){window.addEventListener("devicemotion",handleMot);dmOn=1;}})
+        .catch(()=>{
+          // Fallback without permission
+          if(!dmOn){window.addEventListener("devicemotion",handleMot);dmOn=1;}
+        });
+     }else if(!dmOn){
+       window.addEventListener("devicemotion",handleMot);
+       dmOn=1;
+     }
+   }
+ };
+
+ const initOrientation = () => {
+   if(typeof DeviceOrientationEvent!=="undefined"){
+     if(typeof DeviceOrientationEvent.requestPermission==="function"){
+       DeviceOrientationEvent.requestPermission()
+        .then(p=>{if(p==="granted"&&!doOn){window.addEventListener("deviceorientation",handleOri);doOn=1;}})
+        .catch(()=>{
+          // Fallback without permission
+          if(!doOn){window.addEventListener("deviceorientation",handleOri);doOn=1;}
+        });
+     }else if(!doOn){
+       window.addEventListener("deviceorientation",handleOri);
+       doOn=1;
+     }
+   }
+ };
+
+ // Initialize both sensors independently
+ initMotion();
+ initOrientation();
+}
+
+function stopSensors(){
+ if(dmOn){window.removeEventListener("devicemotion",handleMot);dmOn=0;}
+ if(doOn){window.removeEventListener("deviceorientation",handleOri);doOn=0;}
+ lastAcc=null;
+ isFD=0;
+ isStill=1;
+ blkOff();
+}
+
+/* LIFECYCLE */
+function startPoll(){
+ if(poll)return;
+ poll=setInterval(detectTick,C.TICK);
+ sesTO=setTimeout(stopAll,C.SESSION);
+ mark(1);
+ lock();
+ touchPing();
+}
+function stopPoll(){
+ if(poll)clearInterval(poll);
+ poll=null;
+ if(sesTO)clearTimeout(sesTO);
+ sesTO=null;
+}
+async function stopAll(){
+ stopPoll();
+ stopSensors();
+ await torch(0);
+ simOff();
+ if(ms)ms.getTracks().forEach(t=>t.stop());
+ ms=null;tr=null;
+ armed=0;torchOn=0;
+ baseF=null;covOn=0;
+ mark(0);
+ await unlock();
+ if(inactTO)clearTimeout(inactTO);
+ inactTO=null;
+}
+function touchPing(){
+ if(cleaned)return;
+ if(inactTO)clearTimeout(inactTO);
+ inactTO=setTimeout(cleanExit,C.INACT_MS);
+}
+async function cleanExit(){
+ if(cleaned)return;
+ cleaned=1;
+ await stopAll();
+}
+
+/* ARMING - FIXED VERSION */
+async function arm(){
+ if(armed||cleaned)return;
+ if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){
+   // Camera not available - use screen flashlight only
+   hasTorch=0;
+   armed=1;
+   startPoll();
+   return;
+ }
+ 
+ try{
+   // SIMPLIFIED camera request
+   ms=await navigator.mediaDevices.getUserMedia({
+     video:{facingMode:"environment"}
+   });
+   tr=ms.getVideoTracks()[0];
+   v.srcObject=ms;
+
+   // Force video to play
+   try{await v.play();}catch(e){}
+   
+   // Check torch capability
+   const c=tr.getCapabilities?tr.getCapabilities():{};
+   hasTorch=!!(c&&"torch"in c);
+   
+   armed=1;
+   startPoll();
+ }catch(e){
+   // Camera failed - use screen flashlight only
+   hasTorch=0;
+   armed=1;
+   startPoll();
+ }
+}
+
+/* TRIPLE-TAP BINDING - FIXED VERSION */
+(function(){
+ let n=0,to=null,lastTs=0;
+ function tap(){
+  const now=performance.now();
+  if(now-lastTs>C.TAP_WIN)n=0;
+  lastTs=now;
+  n++;
+  if(to)clearTimeout(to);
+  if(n>=C.TAPS){
+   n=0;to=null;
+   // Initialize sensors immediately
+   initSensors();
+   // Arm the flashlight
+   if(!armed)arm();else stopAll();
+   touchPing();
+  }else{
+   to=setTimeout(()=>{n=0;to=null;},C.TAP_WIN);
+  }
+ }
+ 
+ // Ensure elements exist before adding listeners
+ if(sec){
+   sec.style.cursor="pointer";
+   sec.addEventListener("pointerup",tap,{passive:true});
+ }
+ if(hd){
+   hd.style.cursor="pointer";
+   hd.addEventListener("pointerup",tap,{passive:true});
+ }
+})();
+
+/* CLEANUP */
+window.addEventListener("pagehide",cleanExit);
+window.addEventListener("beforeunload",cleanExit);
+
+// Force black screen to be visible for testing
+setTimeout(() => {
+  if(blk) blk.style.display = "block";
+}, 100);
+/* CLEANUP */
 window.addEventListener("pagehide",cleanExit);
 window.addEventListener("beforeunload",cleanExit);
 </script>
+<!--  ============================================================= -->
 </body>
 </html>
