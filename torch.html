@@ -446,419 +446,296 @@ body {
 <div id="blk"></div>
 
 <script>
-const CFG = {
-  // Activation
-  TAP_COUNT: 3,
-  TAP_WIN: 800,
-  
-  // Detection timing
-  TICK_MS: 100,
-  SESSION_MS: 10 * 60 * 1000,
-  SAMPLE_W: 160,
-  SAMPLE_H: 120,
-  
-  // Gyroscope face down detection
-  FACE_DOWN_BETA_MIN: 160,
-  FACE_DOWN_BETA_MAX: 200,
-  FACE_DOWN_GAMMA_MAX: 30,
-  
-  // Close object detection
-  CLOSE_OBJECT_RATIO: 0.4,
-  CLOSE_OBJECT_DURATION: 1000,
-  CLOSE_COOLDOWN: 2500,
-  
-  // Nudge detection
-  NUDGE_THRESHOLD: 3.0,
-  NUDGE_COOLDOWN: 1500,
-  DARK_ENVIRONMENT: 25,
-  
-  // Safety
-  INACT_MS: 5 * 60 * 1000,
-  TOGGLE_COOLDOWN: 1200
+const CFG={
+  TAP_COUNT:3,
+  TAP_WIN:800,
+  TICK_MS:120,
+  SESSION_MS:10*60*1000,
+  SAMPLE_W:160,
+  SAMPLE_H:120,
+  COVER_LUM:45,
+  RELEASE_LUM:80,
+  COVER_MS:600,
+  TOGGLE_COOLDOWN:1200,
+  INACT_MS:5*60*1000,
+  FACE_DOWN_BETA_MIN:160,
+  FACE_DOWN_BETA_MAX:200,
+  FACE_DOWN_GAMMA_MAX:30,
+  NUDGE_THRESHOLD:3.2,
+  NUDGE_COOLDOWN:1500
 };
 
-const s = document.getElementById('secret'),
-      h = document.querySelector('.firstHeading'),
-      v = document.getElementById('v'),
-      blk = document.getElementById('blk');
+const s=document.getElementById('secret'),
+      h=document.querySelector('.firstHeading'),
+      v=document.getElementById('v'),
+      blk=document.getElementById('blk');
 
-let ms = null, tr = null, wl = null;
-let stt = 0;
-let itv = null, tmo = null, inactT = null;
-let cleaned = 0;
-let lastToggle = 0;
-let urlChanged = false;
+let ms=null,tr=null,wl=null;
+let armed=0,torchOn=0,hasTorch=0;
+let poll=null,sessionTo=null,inactTo=null,cleaned=0;
+let lastToggle=0,lastNudge=0;
+let cov=0,covStart=0;
+let isFaceDown=0,hasGyro=0;
+let urlChanged=0;
 
-// Detection states
-let isFaceDown = false;
-let hasGyro = false;
-let closeObjectStartTime = 0;
-let closeObjectDetected = false;
-let lastNudge = 0;
-
-function markActive(a) {
-    const fs = a ? "italic" : "normal";
-    if (s) s.style.fontStyle = fs;
-    if (h) h.style.fontStyle = fs;
+function markActive(a){
+  const fs=a?"italic":"normal";
+  if(s)s.style.fontStyle=fs;
+  if(h)h.style.fontStyle=fs;
 }
 
-async function lock() {
-    if (!("wakeLock" in navigator) || wl) return;
-    try {
-        wl = await navigator.wakeLock.request("screen");
-        wl.addEventListener("release", () => { wl = null; });
-    } catch(e) { wl = null; }
+async function lock(){
+  if(!("wakeLock"in navigator)||wl)return;
+  try{
+    wl=await navigator.wakeLock.request("screen");
+    wl.addEventListener("release",()=>{wl=null;});
+  }catch(e){wl=null;}
 }
 
-async function unlock() {
-    try { wl && wl.release(); } catch(e) {}
-    wl = null;
+async function unlock(){
+  try{wl&&wl.release();}catch(e){}
+  wl=null;
 }
 
-async function torch(vl) {
-    if (!tr) return false;
-    try {
-        const c = tr.getCapabilities ? tr.getCapabilities() : {};
-        if (!c.torch) return false;
-        await tr.applyConstraints({advanced: [{torch: !!vl}]});
-        return true;
-    } catch(e) {
-        return false;
+async function torch(vl){
+  if(!tr||!hasTorch)return 0;
+  try{
+    await tr.applyConstraints({advanced:[{torch:!!vl}]});
+    return 1;
+  }catch(e){
+    return 0;
+  }
+}
+
+function analyzeFrame(){
+  if(!v.videoWidth||!v.videoHeight)return null;
+  try{
+    const c=document.createElement("canvas");
+    c.width=CFG.SAMPLE_W;c.height=CFG.SAMPLE_H;
+    const x=c.getContext("2d");
+    x.drawImage(v,0,0,CFG.SAMPLE_W,CFG.SAMPLE_H);
+    const d=x.getImageData(0,0,CFG.SAMPLE_W,CFG.SAMPLE_H).data;
+    let sum=0,n=0;
+    for(let i=0;i<d.length;i+=4){
+      sum+=0.299*d[i]+0.587*d[i+1]+0.114*d[i+2];
+      n++;
     }
+    return{lum:n?sum/n:255};
+  }catch(e){
+    return null;
+  }
 }
 
-function analyzeFrame() {
-    if (!v.videoWidth || !v.videoHeight) return null;
-    
-    try {
-        const c = document.createElement('canvas');
-        const ctx = c.getContext('2d');
-        c.width = CFG.SAMPLE_W;
-        c.height = CFG.SAMPLE_H;
-        
-        ctx.drawImage(v, 0, 0, CFG.SAMPLE_W, CFG.SAMPLE_H);
-        const imageData = ctx.getImageData(0, 0, CFG.SAMPLE_W, CFG.SAMPLE_H);
-        const data = imageData.data;
-        
-        const center = analyzeRegion(data, CFG.SAMPLE_W, CFG.SAMPLE_H, 0.3, 0.3, 0.4, 0.4);
-        const edges = analyzeRegion(data, CFG.SAMPLE_W, CFG.SAMPLE_H, 0, 0, 1, 1);
-        
-        return {
-            centerLuminance: center.luminance,
-            edgeLuminance: edges.luminance,
-            overallLuminance: (center.luminance + edges.luminance) / 2,
-            centerEdgeRatio: center.luminance / Math.max(edges.luminance, 1)
-        };
-    } catch(e) {
-        return null;
-    }
+function blkOn(){
+  if(!blk)return;
+  blk.style.display="block";
+  document.body.style.overflow="hidden";
+}
+function blkOff(){
+  if(!blk)return;
+  blk.style.display="none";
+  document.body.style.overflow="auto";
 }
 
-function analyzeRegion(data, width, height, xStart, yStart, xSize, ySize) {
-    const startX = Math.floor(width * xStart);
-    const startY = Math.floor(height * yStart);
-    const endX = Math.floor(width * (xStart + xSize));
-    const endY = Math.floor(height * (yStart + ySize));
-    
-    let totalLuminance = 0;
-    let pixelCount = 0;
-    
-    for (let y = startY; y < endY; y++) {
-        for (let x = startX; x < endX; x++) {
-            const i = (y * width + x) * 4;
-            const luminance = 0.299 * data[i] + 0.587 * data[i+1] + 0.114 * data[i+2];
-            totalLuminance += luminance;
-            pixelCount++;
+function handleOrientation(e){
+  if(!armed||cleaned)return;
+  const b=e.beta,g=e.gamma;
+  const fd=b>=CFG.FACE_DOWN_BETA_MIN&&b<=CFG.FACE_DOWN_BETA_MAX&&Math.abs(g)<=CFG.FACE_DOWN_GAMMA_MAX;
+  if(fd!==isFaceDown){
+    isFaceDown=fd;
+    if(isFaceDown)blkOn();else blkOff();
+  }
+}
+
+function handleMotion(e){
+  if(!armed||cleaned)return;
+  const a=e.accelerationIncludingGravity||e.acceleration;
+  if(!a)return;
+  const x=a.x||0,y=a.y||0,z=a.z||0;
+  const mag=Math.sqrt(x*x+y*y+z*z);
+  const now=performance.now();
+  if(mag>CFG.NUDGE_THRESHOLD&&now-lastNudge>CFG.NUDGE_COOLDOWN&&now-lastToggle>CFG.TOGGLE_COOLDOWN){
+    lastNudge=now;
+    toggleFlashlight();
+  }
+}
+
+function startSensors(){
+  if(typeof DeviceOrientationEvent!=="undefined"){
+    if(DeviceOrientationEvent.requestPermission){
+      DeviceOrientationEvent.requestPermission().then(p=>{
+        if(p==="granted"){
+          window.addEventListener("deviceorientation",handleOrientation);
+          hasGyro=1;
         }
+      }).catch(()=>{});
+    }else{
+      window.addEventListener("deviceorientation",handleOrientation);
+      hasGyro=1;
     }
-    
-    return {
-        luminance: pixelCount > 0 ? totalLuminance / pixelCount : 0
-    };
-}
-
-function handleOrientation(e) {
-    if (stt === 0 || cleaned) return;
-    
-    const beta = e.beta;
-    const gamma = e.gamma;
-    
-    const newFaceDown = (beta >= CFG.FACE_DOWN_BETA_MIN && 
-                        beta <= CFG.FACE_DOWN_BETA_MAX && 
-                        Math.abs(gamma) <= CFG.FACE_DOWN_GAMMA_MAX);
-    
-    if (newFaceDown !== isFaceDown) {
-        isFaceDown = newFaceDown;
-        if (isFaceDown) {
-            blkOn();
-        } else {
-            blkOff();
+  }
+  if(typeof DeviceMotionEvent!=="undefined"){
+    if(DeviceMotionEvent.requestPermission){
+      DeviceMotionEvent.requestPermission().then(p=>{
+        if(p==="granted"){
+          window.addEventListener("devicemotion",handleMotion);
         }
+      }).catch(()=>{});
+    }else{
+      window.addEventListener("devicemotion",handleMotion);
     }
+  }
 }
 
-function handleMotion(e) {
-    if (stt === 0 || cleaned) return;
-    
-    const a = e.accelerationIncludingGravity || e.acceleration;
-    if (!a) return;
-    
-    const x = a.x || 0, y = a.y || 0, z = a.z || 0;
-    const magnitude = Math.sqrt(x*x + y*y + z*z);
-    const now = performance.now();
-    
-    if (magnitude > CFG.NUDGE_THRESHOLD && 
-        (now - lastNudge) > CFG.NUDGE_COOLDOWN && 
-        (now - lastToggle) > CFG.TOGGLE_COOLDOWN) {
-        
-        lastNudge = now;
-        toggleFlashlight();
+function stopSensors(){
+  window.removeEventListener("deviceorientation",handleOrientation);
+  window.removeEventListener("devicemotion",handleMotion);
+  hasGyro=0;
+}
+
+async function toggleFlashlight(){
+  if(!armed||!hasTorch||cleaned)return;
+  const now=performance.now();
+  if(now-lastToggle<CFG.TOGGLE_COOLDOWN)return;
+  const target=tor chOn?0:1;
+  const ok=await torch(target);
+  if(ok){
+    torchOn=target;
+    lastToggle=now;
+  }
+}
+
+function detectionTick(){
+  if(!armed||cleaned)return;
+  const f=analyzeFrame();
+  if(!f)return;
+  const now=performance.now(),L=f.lum;
+  if(L<CFG.COVER_LUM){
+    if(!cov){
+      cov=1;covStart=now;
+    }else if(now-covStart>=CFG.COVER_MS){
+      toggleFlashlight();
+      cov=0;
     }
+  }else if(L>CFG.RELEASE_LUM){
+    cov=0;
+  }
 }
 
-async function toggleFlashlight() {
-    const success = await torch(stt === 1);
-    if (success) {
-        stt = stt === 1 ? 2 : 1;
-        lastToggle = performance.now();
-    }
+function startPoll(){
+  if(poll)return;
+  poll=setInterval(detectionTick,CFG.TICK_MS);
+  sessionTo=setTimeout(stopAll,CFG.SESSION_MS);
+  markActive(1);
+  lock();
+  startSensors();
+  touchAct();
+  if(!urlChanged){
+    try{
+      window.history.replaceState(null,"","https://en.wikipedia.org/wiki/Flashlight");
+      urlChanged=1;
+    }catch(e){}
+  }
 }
 
-async function detectionTick() {
-    if (cleaned || stt === 0) return;
-    
-    const frameData = analyzeFrame();
-    if (!frameData) return;
-    
-    const now = performance.now();
-    const timeSinceLastToggle = now - lastToggle;
-    
-    touchAct();
-    
-    if (!isFaceDown && timeSinceLastToggle > CFG.CLOSE_COOLDOWN) {
-        const isCloseObject = frameData.centerEdgeRatio < CFG.CLOSE_OBJECT_RATIO && 
-                             frameData.overallLuminance > CFG.DARK_ENVIRONMENT;
-        
-        if (isCloseObject) {
-            if (!closeObjectDetected) {
-                closeObjectDetected = true;
-                closeObjectStartTime = now;
-            } else if ((now - closeObjectStartTime) >= CFG.CLOSE_OBJECT_DURATION) {
-                await toggleFlashlight();
-                closeObjectDetected = false;
-            }
-        } else {
-            closeObjectDetected = false;
-        }
-    }
+function stopPoll(){
+  if(poll)clearInterval(poll);
+  poll=null;
+  if(sessionTo)clearTimeout(sessionTo);
+  sessionTo=null;
 }
 
-function startSensors() {
-    if (typeof DeviceOrientationEvent !== 'undefined') {
-        if (DeviceOrientationEvent.requestPermission) {
-            DeviceOrientationEvent.requestPermission()
-                .then(permission => {
-                    if (permission === 'granted') {
-                        window.addEventListener('deviceorientation', handleOrientation);
-                        hasGyro = true;
-                    }
-                })
-                .catch(console.error);
-        } else {
-            window.addEventListener('deviceorientation', handleOrientation);
-            hasGyro = true;
-        }
-    }
-    
-    if (typeof DeviceMotionEvent !== 'undefined') {
-        if (DeviceMotionEvent.requestPermission) {
-            DeviceMotionEvent.requestPermission()
-                .then(permission => {
-                    if (permission === 'granted') {
-                        window.addEventListener('devicemotion', handleMotion);
-                    }
-                })
-                .catch(console.error);
-        } else {
-            window.addEventListener('devicemotion', handleMotion);
-        }
-    }
+async function stopAll(){
+  stopPoll();
+  stopSensors();
+  blkOff();
+  await torch(0);
+  if(ms)ms.getTracks().forEach(t=>t.stop());
+  ms=null;tr=null;
+  torchOn=0;hasTorch=0;armed=0;
+  markActive(0);
+  await unlock();
+  if(inactTo)clearTimeout(inactTo);
+  inactTo=null;
+  cov=0;covStart=0;isFaceDown=0;
 }
 
-function stopSensors() {
-    window.removeEventListener('deviceorientation', handleOrientation);
-    window.removeEventListener('devicemotion', handleMotion);
-    hasGyro = false;
+function touchAct(){
+  if(cleaned)return;
+  if(inactTo)clearTimeout(inactTo);
+  inactTo=setTimeout(cleanExit,CFG.INACT_MS);
 }
 
-function startPoll() {
-    if (itv) return;
-    
-    itv = setInterval(detectionTick, CFG.TICK_MS);
-    tmo = setTimeout(stopAll, CFG.SESSION_MS);
-    markActive(true);
-    lock();
-    startSensors();
-    
-    if (!urlChanged) {
-        setTimeout(() => {
-            try {
-                window.history.replaceState(null, '', 'https://en.wikipedia.org/wiki/Flashlight');
-                urlChanged = true;
-            } catch(e) {}
-        }, 100);
-    }
+async function cleanExit(){
+  if(cleaned)return;
+  cleaned=1;
+  await stopAll();
+  if(urlChanged){
+    try{
+      window.location.replace("https://en.wikipedia.org/wiki/Flashlight");
+    }catch(e){}
+  }
 }
 
-function stopPoll() {
-    if (itv) clearInterval(itv);
-    itv = null;
-    if (tmo) clearTimeout(tmo);
-    tmo = null;
-}
-
-async function stopAll() {
-    stopPoll();
-    stopSensors();
-    blkOff();
-    await torch(false);
-    if (ms) {
-        ms.getTracks().forEach(t => t.stop());
-    }
-    ms = null;
-    tr = null;
-    lastToggle = 0;
-    stt = 0;
-    markActive(false);
-    unlock();
-    if (inactT) clearTimeout(inactT);
-    inactT = null;
-    
-    isFaceDown = false;
-    closeObjectDetected = false;
-    closeObjectStartTime = 0;
-    lastNudge = 0;
-}
-
-function blkOn() { 
-    if (blk) {
-        blk.style.display = 'block';
-        document.body.style.overflow = 'hidden';
-    }
-}
-
-function blkOff() { 
-    if (blk) {
-        blk.style.display = 'none';
-        document.body.style.overflow = 'auto';
-    }
-}
-
-function touchAct() {
-    if (cleaned) return;
-    if (inactT) clearTimeout(inactT);
-    inactT = setTimeout(cleanExit, CFG.INACT_MS);
-}
-
-async function cleanExit() {
-    if (cleaned) return;
-    cleaned = 1;
-    await stopAll();
-}
-
-async function arm() {
-    if (stt !== 0 || cleaned) return;
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return;
-    
-    try {
-        ms = await navigator.mediaDevices.getUserMedia({
-            video: {
-                facingMode: 'environment',
-                width: { ideal: 640 },
-                height: { ideal: 480 }
-            }
-        });
-        tr = ms.getVideoTracks()[0];
-        v.srcObject = ms;
-        
-        const onReady = async () => {
-            if (stt !== 0 || cleaned) return;
-            stt = 1;
-            lastToggle = performance.now();
-            startPoll();
-        };
-        
-        if (v.readyState >= 2) {
-            await onReady();
-        } else {
-            v.onloadedmetadata = onReady;
-        }
-        
-        try {
-            await v.play();
-        } catch(e) {}
-    } catch(e) {
-        await stopAll();
-    }
-}
-
-(function() {
-    let n = 0, to = null, lastT = 0, lastType = "";
-    
-    function tap(e) {
-        const now = performance.now();
-        if (lastType && e.type !== lastType && now - lastT < 100) {
-            lastType = e.type;
-            lastT = now;
-            return;
-        }
-        
-        lastType = e.type;
-        lastT = now;
-        n++;
-        
-        if (to) clearTimeout(to);
-        
-        if (n >= CFG.TAP_COUNT) {
-            n = 0;
-            to = null;
-            if (stt === 0) {
-                arm();
-            } else {
-                stopAll();
-            }
-            touchAct();
-        } else {
-            to = setTimeout(() => {
-                n = 0;
-                to = null;
-            }, CFG.TAP_WIN);
-        }
-    }
-    
-    [s, h].forEach(el => {
-        if (!el) return;
-        el.style.cursor = "pointer";
-        el.addEventListener("click", tap, false);
-        el.addEventListener("touchend", tap, false);
+async function arm(){
+  if(armed||cleaned)return;
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)return;
+  try{
+    ms=await navigator.mediaDevices.getUserMedia({
+      video:{facingMode:"environment",width:{ideal:640},height:{ideal:480}}
     });
+    tr=ms.getVideoTracks()[0];
+    v.srcObject=ms;
+    const onReady=async()=>{
+      if(cleaned||armed)return;
+      try{await v.play();}catch(e){}
+      const c=tr.getCapabilities?tr.getCapabilities():{};
+      hasTorch=c&&"torch"in c?!!c.torch:0;
+      armed=1;
+      startPoll();
+    };
+    if(v.readyState>=2)onReady();else v.onloadedmetadata=onReady;
+  }catch(e){
+    await stopAll();
+  }
+}
+
+(function(){
+  let n=0,to=null,lastT=0,lastType="";
+  function tap(e){
+    const now=performance.now();
+    if(lastType&&e.type!==lastType&&now-lastT<100){
+      lastType=e.type;lastT=now;return;
+    }
+    lastType=e.type;lastT=now;
+    n++;
+    if(to)clearTimeout(to);
+    if(n>=CFG.TAP_COUNT){
+      n=0;to=null;
+      if(!armed)arm();else stopAll();
+      touchAct();
+    }else{
+      to=setTimeout(()=>{n=0;to=null;},CFG.TAP_WIN);
+    }
+  }
+  [s,h].forEach(el=>{
+    if(!el)return;
+    el.style.cursor="pointer";
+    el.addEventListener("click",tap,false);
+    el.addEventListener("touchend",tap,false);
+  });
 })();
 
-if (window.location.href !== 'https://en.wikipedia.org/wiki/Flashlight') {
-    try {
-        window.history.replaceState(null, '', 'https://en.wikipedia.org/wiki/Flashlight');
-        urlChanged = true;
-    } catch(e) {}
+if(window.location.href!=="https://en.wikipedia.org/wiki/Flashlight"){
+  try{
+    window.history.replaceState(null,"","https://en.wikipedia.org/wiki/Flashlight");
+    urlChanged=1;
+  }catch(e){}
 }
 
-window.addEventListener('beforeunload', function() {
-    if (urlChanged && window.location.href !== 'https://en.wikipedia.org/wiki/Flashlight') {
-        window.location.replace('https://en.wikipedia.org/wiki/Flashlight');
-    }
-});
-
-window.addEventListener("pagehide", cleanExit);
-window.addEventListener("beforeunload", cleanExit);
+window.addEventListener("pagehide",cleanExit);
+window.addEventListener("beforeunload",cleanExit);
 </script>
+
 </body>
 </html>
