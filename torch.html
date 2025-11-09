@@ -444,6 +444,7 @@ body {
 
 <video id="v" autoplay playsinline muted></video>
 <div id="blk"></div>
+
 <script>
 const CFG={
  TAPS:3,
@@ -453,7 +454,7 @@ const CFG={
  SW:120,SH:90,
  ENTER_DIFF:10,
  STABLE_BAND:4,
- HOLD_MS:500,
+ HOLD_MS:800,
  TOGGLE_CD:900,
  INACT_MS:5*60*1000,
  FD_B_MIN:140,
@@ -774,6 +775,8 @@ async function arm(){
 window.addEventListener("pagehide",cleanExit);
 window.addEventListener("beforeunload",cleanExit);
 </script>
+
+
 
 </body>
 </html>
