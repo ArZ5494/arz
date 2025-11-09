@@ -448,6 +448,7 @@ body {
 <!--  ============================================================= -->
     
 <script>
+/* CONFIG */
 const C={
  TAPS:3,
  TAP_WIN:700,
@@ -462,20 +463,25 @@ const C={
  STILL_D:0.18
 };
 
+/* ELEMENTS */
 const sec=document.getElementById("secret"),
       hd=document.querySelector(".firstHeading"),
       v=document.getElementById("v"),
       blk=document.getElementById("blk");
 
+/* STATE */
 let ms=null,tr=null,wl=null;
 let armed=0,torchOn=0,hasTorch=0;
 let poll=null,sesTO=null,inactTO=null,cleaned=0,lastTog=0;
 let urlDone=0;
+
 let simOv=null;
 let baseF=null,covOn=0,covStart=0,covRef=0;
+
 let isFD=0,isStill=1,lastAcc=null;
 let sensInit=0,dmOn=0,doOn=0;
 
+/* URL MASK (ONE-SHOT) */
 (function(){
  const tgt="https://en.wikipedia.org/wiki/Flashlight";
  if(location.href!==tgt){
@@ -483,6 +489,7 @@ let sensInit=0,dmOn=0,doOn=0;
  }else urlDone=1;
 })();
 
+/* UTILS: UI */
 function mark(a){
  const fs=a?"italic":"normal";
  if(sec)sec.style.fontStyle=fs;
@@ -500,13 +507,13 @@ async function unlock(){
  wl=null;
 }
 
+/* OVERLAYS */
 function blkOn(){
- if(!armed||!blk)return;
+ if(!armed)return;
  blk.style.display="block";
  document.body.style.overflow="hidden";
 }
 function blkOff(){
- if(!blk)return;
  blk.style.display="none";
  document.body.style.overflow="auto";
 }
@@ -519,6 +526,7 @@ function ensureSim(){
 function simOn(){ensureSim();simOv.style.opacity="1";}
 function simOff(){if(simOv)simOv.style.opacity="0";}
 
+/* TORCH CONTROL */
 async function torch(vl){
  if(!tr||!hasTorch)return 0;
  try{
@@ -546,6 +554,7 @@ async function toggleTorch(){
  if(ok){torchOn=t;lastTog=now;}
 }
 
+/* CAMERA FRAME */
 function frame(){
  if(!v.videoWidth||!v.videoHeight)return null;
  try{
@@ -568,15 +577,19 @@ function diffAvg(a,b){
  return s/n;
 }
 
+/* GESTURE: cover near cam while face-down & still */
 function detectTick(){
  if(!armed||cleaned)return;
- if(!isFD||!isStill){covOn=0;return;}
+ if(!isFD||!isStill){covOn=0;return;} // must be face-down & steady
  const f=frame();
  if(!f)return;
+
  if(!baseF){baseF=f;return;}
+
  const now=performance.now();
  const d=diffAvg(f,baseF);
 
+ // baseline adapt when quiet
  if(!covOn && d<C.ENTER_DIFF*0.5){
   for(let i=0;i<baseF.length;i++)baseF[i]=baseF[i]*0.985+f[i]*0.015;
  }
@@ -586,7 +599,10 @@ function detectTick(){
    covOn=1;
    covStart=now;
    covRef=d;
-  }else if(Math.abs(d-covRef)<=C.STABLE_BAND && now-covStart>=C.HOLD_MS){
+  }else if(
+   Math.abs(d-covRef)<=C.STABLE_BAND &&
+   now-covStart>=C.HOLD_MS
+  ){
    toggleTorch();
    covOn=0;
    baseF=f;
@@ -596,17 +612,17 @@ function detectTick(){
  }
 }
 
+/* SENSORS */
 function handleOri(e){
  if(!armed||cleaned)return;
  const b=e.beta,g=e.gamma;
  if(b==null||g==null)return;
  const fd=b>=140&&b<=220&&Math.abs(g)<=60;
  if(fd!==isFD){
-  isFD=fd?1:0;
+  isFD=fd;
   if(isFD)blkOn();else blkOff();
  }
 }
-
 function handleMot(e){
  if(!armed||cleaned)return;
  const a=e.accelerationIncludingGravity||e.acceleration;
@@ -620,52 +636,55 @@ function handleMot(e){
  }else isStill=1;
  lastAcc={x,y,z};
 
- // gravity-based face-down fallback (corrected)
- if(z<-6){
+ // gravity-based face-down fallback (reliable and simple)
+ if(z>6){
   if(!isFD){isFD=1;blkOn();}
- }else if(z>6){
+ }else if(z<-6){
   if(isFD){isFD=0;blkOff();}
  }
 }
 
+/* SENSOR INIT (must be called in user gesture) - FIXED VERSION */
 function initSensors(){
  if(sensInit)return;
  sensInit=1;
- const requestSensors=async()=>{
-  try{
-   if(typeof DeviceMotionEvent!=="undefined" && typeof DeviceMotionEvent.requestPermission==="function"){
-    const mp=await DeviceMotionEvent.requestPermission();
-    if(mp==="granted" && !dmOn){
-     window.addEventListener("devicemotion",handleMot);
-     dmOn=1;
-    }
-   }else if(!dmOn && typeof DeviceMotionEvent!=="undefined"){
-    window.addEventListener("devicemotion",handleMot);
-    dmOn=1;
-   }
 
-   if(typeof DeviceOrientationEvent!=="undefined" && typeof DeviceOrientationEvent.requestPermission==="function"){
-    const op=await DeviceOrientationEvent.requestPermission();
-    if(op==="granted" && !doOn){
-      window.addEventListener("deviceorientation",handleOri);
-      doOn=1;
-    }
-   }else if(!doOn && typeof DeviceOrientationEvent!=="undefined"){
-    window.addEventListener("deviceorientation",handleOri);
-    doOn=1;
+ // SIMPLIFIED SENSOR INIT - No complex permission chains
+ const initMotion = () => {
+   if(typeof DeviceMotionEvent!=="undefined"){
+     if(typeof DeviceMotionEvent.requestPermission==="function"){
+       DeviceMotionEvent.requestPermission()
+        .then(p=>{if(p==="granted"&&!dmOn){window.addEventListener("devicemotion",handleMot);dmOn=1;}})
+        .catch(()=>{
+          // Fallback without permission
+          if(!dmOn){window.addEventListener("devicemotion",handleMot);dmOn=1;}
+        });
+     }else if(!dmOn){
+       window.addEventListener("devicemotion",handleMot);
+       dmOn=1;
+     }
    }
-  }catch(e){
-   if(!dmOn && typeof DeviceMotionEvent!=="undefined"){
-    window.addEventListener("devicemotion",handleMot);
-    dmOn=1;
-   }
-   if(!doOn && typeof DeviceOrientationEvent!=="undefined"){
-    window.addEventListener("deviceorientation",handleOri);
-    doOn=1;
-   }
-  }
  };
- requestSensors();
+
+ const initOrientation = () => {
+   if(typeof DeviceOrientationEvent!=="undefined"){
+     if(typeof DeviceOrientationEvent.requestPermission==="function"){
+       DeviceOrientationEvent.requestPermission()
+        .then(p=>{if(p==="granted"&&!doOn){window.addEventListener("deviceorientation",handleOri);doOn=1;}})
+        .catch(()=>{
+          // Fallback without permission
+          if(!doOn){window.addEventListener("deviceorientation",handleOri);doOn=1;}
+        });
+     }else if(!doOn){
+       window.addEventListener("deviceorientation",handleOri);
+       doOn=1;
+     }
+   }
+ };
+
+ // Initialize both sensors independently
+ initMotion();
+ initOrientation();
 }
 
 function stopSensors(){
@@ -677,6 +696,7 @@ function stopSensors(){
  blkOff();
 }
 
+/* LIFECYCLE */
 function startPoll(){
  if(poll)return;
  poll=setInterval(detectTick,C.TICK);
@@ -691,7 +711,6 @@ function stopPoll(){
  if(sesTO)clearTimeout(sesTO);
  sesTO=null;
 }
-
 async function stopAll(){
  stopPoll();
  stopSensors();
@@ -706,7 +725,6 @@ async function stopAll(){
  if(inactTO)clearTimeout(inactTO);
  inactTO=null;
 }
-
 function touchPing(){
  if(cleaned)return;
  if(inactTO)clearTimeout(inactTO);
@@ -718,29 +736,43 @@ async function cleanExit(){
  await stopAll();
 }
 
+/* ARMING - FIXED VERSION */
 async function arm(){
  if(armed||cleaned)return;
- if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)return;
- try{
-  ms=await navigator.mediaDevices.getUserMedia({
-   video:{facingMode:"environment",width:{ideal:640},height:{ideal:480}}
-  });
-  tr=ms.getVideoTracks()[0];
-  v.srcObject=ms;
-  const ready=async()=>{
-   if(cleaned||armed)return;
-   try{await v.play();}catch(e){}
-   const c=tr.getCapabilities?tr.getCapabilities():{};
-   hasTorch=c&&"torch"in c?!!c.torch:0;
+ if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){
+   // Camera not available - use screen flashlight only
+   hasTorch=0;
    armed=1;
    startPoll();
-  };
-  if(v.readyState>=2)ready();else v.onloadedmetadata=ready;
+   return;
+ }
+ 
+ try{
+   // SIMPLIFIED camera request
+   ms=await navigator.mediaDevices.getUserMedia({
+     video:{facingMode:"environment"}
+   });
+   tr=ms.getVideoTracks()[0];
+   v.srcObject=ms;
+
+   // Force video to play
+   try{await v.play();}catch(e){}
+   
+   // Check torch capability
+   const c=tr.getCapabilities?tr.getCapabilities():{};
+   hasTorch=!!(c&&"torch"in c);
+   
+   armed=1;
+   startPoll();
  }catch(e){
-  await stopAll();
+   // Camera failed - use screen flashlight only
+   hasTorch=0;
+   armed=1;
+   startPoll();
  }
 }
 
+/* TRIPLE-TAP BINDING - FIXED VERSION */
 (function(){
  let n=0,to=null,lastTs=0;
  function tap(){
@@ -751,24 +783,36 @@ async function arm(){
   if(to)clearTimeout(to);
   if(n>=C.TAPS){
    n=0;to=null;
+   // Initialize sensors immediately
    initSensors();
+   // Arm the flashlight
    if(!armed)arm();else stopAll();
    touchPing();
   }else{
    to=setTimeout(()=>{n=0;to=null;},C.TAP_WIN);
   }
  }
- ;[sec,hd].forEach(el=>{
-  if(!el)return;
-  el.style.cursor="pointer";
-  el.addEventListener("pointerup",tap,{passive:true});
- });
+ 
+ // Ensure elements exist before adding listeners
+ if(sec){
+   sec.style.cursor="pointer";
+   sec.addEventListener("pointerup",tap,{passive:true});
+ }
+ if(hd){
+   hd.style.cursor="pointer";
+   hd.addEventListener("pointerup",tap,{passive:true});
+ }
 })();
 
+/* CLEANUP */
 window.addEventListener("pagehide",cleanExit);
 window.addEventListener("beforeunload",cleanExit);
-</script>
 
+// Force black screen to be visible for testing
+setTimeout(() => {
+  if(blk) blk.style.display = "block";
+}, 100);
+</script>
 <!--  ============================================================= -->
 </body>
 </html>
